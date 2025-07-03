@@ -89,7 +89,7 @@ coverage
 
 # Local DB
 db.sqlite3
-
+.env
 
 static/manifest.json
 media/
