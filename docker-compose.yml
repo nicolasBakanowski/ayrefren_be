@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: ayre_fren_db
+      POSTGRES_USER: ayre_user
+      POSTGRES_PASSWORD: ayre_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ayre_user:ayre_password@db:5432/ayre_fren_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  postgres_data:
