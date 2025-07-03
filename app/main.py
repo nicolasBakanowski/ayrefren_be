@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import clients_router, invoice_router, reports_router, users_router, work_order_parts_router, \
-    work_order_tasks_router, work_orders_mechanic_router, work_orders_router
+from app.routers import clients_router, invoice_router, reports_router, trucks_router, users_router, \
+    work_order_parts_router, work_order_tasks_router, work_orders_mechanic_router, work_orders_router
 
 
 # Configuración de la app
@@ -41,6 +41,8 @@ def include_routers(app: FastAPI) -> None:
     app.include_router(invoice_router, prefix="/invoices", tags=["Facturación"])
 
     app.include_router(reports_router, prefix="/reports", tags=["Reportes"])
+
+    app.include_router(trucks_router, prefix="/trucks", tags=["Trucks"])
 
 
 # Inicializa la app
