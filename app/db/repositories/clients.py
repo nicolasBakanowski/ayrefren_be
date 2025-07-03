@@ -43,4 +43,3 @@ class ClientsRepository:
         await self.db.commit()
         await self.db.refresh(client)
         return client
-

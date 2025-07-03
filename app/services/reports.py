@@ -1,5 +1,5 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ReportsService:
@@ -7,7 +7,8 @@ class ReportsService:
         self.db = db
 
     async def profit_by_order(self):
-        query = text("""
+        query = text(
+            """
             SELECT
               wo.id AS order_id,
               c.name AS client_name,
@@ -22,12 +23,14 @@ class ReportsService:
             LEFT JOIN work_order_tasks wot ON wot.work_order_id = wo.id
             GROUP BY wo.id, c.name, i.total
             ORDER BY profit DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
     async def billing_by_client(self):
-        query = text("""
+        query = text(
+            """
             SELECT
               c.id AS client_id,
               c.name AS client_name,
@@ -37,12 +40,14 @@ class ReportsService:
             JOIN clients c ON c.id = i.client_id
             GROUP BY c.id, c.name
             ORDER BY total_billed DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
     async def top_clients(self, limit: int = 5):
-        query = text("""
+        query = text(
+            """
             SELECT
               c.name AS client_name,
               SUM(i.total) AS total_billed
@@ -51,24 +56,28 @@ class ReportsService:
             GROUP BY c.name
             ORDER BY total_billed DESC
             LIMIT :limit;
-        """)
+        """
+        )
         result = await self.db.execute(query, {"limit": limit})
         return [dict(row) for row in result.fetchall()]
 
     async def income_monthly(self):
-        query = text("""
+        query = text(
+            """
             SELECT
               TO_CHAR(DATE_TRUNC('month', issued_at), 'YYYY-MM') AS month,
               SUM(total) AS total_income
             FROM invoices
             GROUP BY month
             ORDER BY month DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
     async def payments_by_method(self):
-        query = text("""
+        query = text(
+            """
             SELECT
               pm.name AS method,
               SUM(p.amount) AS total_received
@@ -76,24 +85,28 @@ class ReportsService:
             JOIN payment_methods pm ON pm.id = p.method_id
             GROUP BY pm.name
             ORDER BY total_received DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
     async def expenses_monthly(self):
-        query = text("""
+        query = text(
+            """
             SELECT
               TO_CHAR(DATE_TRUNC('month', date), 'YYYY-MM') AS month,
               SUM(amount) AS total_expense
             FROM expenses
             GROUP BY month
             ORDER BY month DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
     async def expenses_by_type(self):
-        query = text("""
+        query = text(
+            """
             SELECT
               et.name AS type,
               SUM(e.amount) AS total_amount
@@ -101,12 +114,14 @@ class ReportsService:
             JOIN expense_types et ON et.id = e.expense_type_id
             GROUP BY et.name
             ORDER BY total_amount DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
     async def monthly_balance(self):
-        query = text("""
+        query = text(
+            """
             WITH income AS (
                 SELECT DATE_TRUNC('month', issued_at) AS month, SUM(total) AS total_income
                 FROM invoices
@@ -125,6 +140,7 @@ class ReportsService:
             FROM income i
             FULL OUTER JOIN expense e ON i.month = e.month
             ORDER BY month DESC;
-        """)
+        """
+        )
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]

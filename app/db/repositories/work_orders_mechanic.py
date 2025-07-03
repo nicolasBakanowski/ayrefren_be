@@ -9,16 +9,23 @@ class WorkOrderMechanicRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def assign_mechanic(self, mechanic_in: WorkOrderMechanicCreate) -> WorkOrderMechanic:
+    async def assign_mechanic(
+        self, mechanic_in: WorkOrderMechanicCreate
+    ) -> WorkOrderMechanic:
         mechanic = WorkOrderMechanic(**mechanic_in.dict())
         self.db.add(mechanic)
         await self.db.commit()
         await self.db.refresh(mechanic)
         return mechanic
 
-    async def list_mechanics_by_order(self, work_order_id: int) -> list[WorkOrderMechanic]:
+    async def list_mechanics_by_order(
+        self, work_order_id: int
+    ) -> list[WorkOrderMechanic]:
         result = await self.db.execute(
-            select(WorkOrderMechanic).where(WorkOrderMechanic.work_order_id == work_order_id))
+            select(WorkOrderMechanic).where(
+                WorkOrderMechanic.work_order_id == work_order_id
+            )
+        )
         return result.scalars().all()
 
     async def remove_mechanic(self, mechanic_id: int) -> bool:

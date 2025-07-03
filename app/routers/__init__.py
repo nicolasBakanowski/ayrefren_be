@@ -1,3 +1,4 @@
+from .auth import auth_router
 from .clients import clients_router
 from .invoices import invoice_router
 from .reports import reports_router
@@ -17,5 +18,6 @@ __all__ = [
     "work_order_parts_router",
     "invoice_router",
     "reports_router",
-    "trucks_router"
+    "trucks_router",
+    "auth_router",
 ]

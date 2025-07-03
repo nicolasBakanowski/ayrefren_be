@@ -16,7 +16,9 @@ class WorkOrdersRepository:
         return work_order
 
     async def get(self, work_order_id: int) -> WorkOrder | None:
-        result = await self.db.execute(select(WorkOrder).where(WorkOrder.id == work_order_id))
+        result = await self.db.execute(
+            select(WorkOrder).where(WorkOrder.id == work_order_id)
+        )
         return result.scalar_one_or_none()
 
     async def list(self) -> list[WorkOrder]:

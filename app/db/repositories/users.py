@@ -20,7 +20,7 @@ class UsersRepository:
             name=user_in.name,
             email=user_in.email,
             password=hashed_pw,
-            role_id=user_in.role_id
+            role_id=user_in.role_id,
         )
         self.db.add(db_user)
         await self.db.commit()
@@ -30,3 +30,44 @@ class UsersRepository:
     async def get_by_id(self, user_id: int) -> User | None:
         result = await self.db.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
+
+    async def list(self) -> list[User]:
+        result = await self.db.execute(select(User))
+        return result.scalars().all()
+
+    async def update(self, user_id: int, user_in: UserCreate) -> User:
+        user = await self.get_by_id(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        if user_in.name:
+            user.name = user_in.name
+        if user_in.email:
+            user.email = user_in.email
+        if user_in.password:
+            user.password = hash_password(user_in.password)
+        if user_in.role_id is not None:
+            user.role_id = user_in.role_id
+
+        self.db.add(user)
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user
+
+    async def delete(self, user_id: int) -> None:
+        user = await self.get_by_id(user_id)
+        if not user:
+            raise ValueError("User not found")
+        await self.db.delete(user)
+        await self.db.commit()
+
+    async def update_password(self, user_id: int, new_password: str) -> User:
+        user = await self.get_by_id(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        user.password = hash_password(new_password)
+        self.db.add(user)
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user

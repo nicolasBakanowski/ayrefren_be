@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 from app.models.work_order_parts import WorkOrderPart
 from app.schemas.work_order_parts import WorkOrderPartCreate
+
 
 class WorkOrderPartsRepository:
     def __init__(self, db: AsyncSession):
@@ -15,7 +17,9 @@ class WorkOrderPartsRepository:
         return part
 
     async def list_by_work_order(self, work_order_id: int) -> list[WorkOrderPart]:
-        result = await self.db.execute(select(WorkOrderPart).where(WorkOrderPart.work_order_id == work_order_id))
+        result = await self.db.execute(
+            select(WorkOrderPart).where(WorkOrderPart.work_order_id == work_order_id)
+        )
         return result.scalars().all()
 
     async def delete(self, part_id: int) -> bool:

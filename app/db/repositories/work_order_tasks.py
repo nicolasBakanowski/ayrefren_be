@@ -17,7 +17,9 @@ class WorkOrderTasksRepository:
         return task
 
     async def list_by_work_order(self, work_order_id: int) -> list[WorkOrderTask]:
-        result = await self.db.execute(select(WorkOrderTask).where(WorkOrderTask.work_order_id == work_order_id))
+        result = await self.db.execute(
+            select(WorkOrderTask).where(WorkOrderTask.work_order_id == work_order_id)
+        )
         return result.scalars().all()
 
     async def delete(self, task_id: int) -> bool:
