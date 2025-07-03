@@ -13,3 +13,14 @@ ayre_fren_ba/
 ├── requirements.txt
 └── README.md
 ```
+
+## Ejecutar con Docker
+
+Para levantar la aplicación y aplicar las migraciones automáticamente:
+
+```bash
+docker compose up --build
+```
+
+El servicio `migrate` ejecuta `alembic upgrade head` y, una vez finalizado,
+inicia el servicio `web`.

@@ -13,6 +13,18 @@ services:
     networks:
       - app-network
 
+  migrate:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ayre_user:ayre_password@db:5432/ayre_fren_db
+    depends_on:
+      - db
+    command: alembic upgrade head
+    restart: "no"
+    networks:
+      - app-network
+
   web:
     build: .
     env_file: .env
@@ -23,7 +35,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+      - migrate
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     networks:
       - app-network
 
