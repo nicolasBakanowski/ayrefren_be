@@ -1,11 +1,15 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum
-from sqlalchemy.sql import func
-from app.core.database import Base
 import enum
+
+from sqlalchemy import Column, DateTime, Enum, Integer, String
+from sqlalchemy.sql import func
+
+from app.core.database import Base
+
 
 class ClientType(str, enum.Enum):
     persona = "persona"
     empresa = "empresa"
+
 
 class Client(Base):
     __tablename__ = "clients"

@@ -33,6 +33,8 @@ async def delete_client(id: int, db: AsyncSession = Depends(get_db)):
 
 
 @clients_router.put("/{id}", response_model=ClientOut)
-async def update_client(id: int, client_in: ClientOut, db: AsyncSession = Depends(get_db)):
+async def update_client(
+    id: int, client_in: ClientOut, db: AsyncSession = Depends(get_db)
+):
     service = ClientsService(db)
     return await service.update_client(id, client_in)

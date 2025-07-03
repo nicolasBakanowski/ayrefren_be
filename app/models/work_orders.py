@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -30,6 +30,3 @@ class WorkOrder(Base):
     mechanics = relationship("WorkOrderMechanic", back_populates="work_order")
     tasks = relationship("WorkOrderTask", back_populates="work_order")
     parts = relationship("WorkOrderPart", back_populates="work_order")
-
-
-

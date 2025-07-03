@@ -1,6 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel
+
 
 class InvoiceCreate(BaseModel):
     work_order_id: int
@@ -12,6 +14,7 @@ class InvoiceCreate(BaseModel):
     iva: float
     total: float
     invoice_number: Optional[str] = None
+
 
 class InvoiceOut(InvoiceCreate):
     id: int
@@ -29,10 +32,10 @@ class PaymentCreate(BaseModel):
     reference: Optional[str] = None
     notes: Optional[str] = None
 
+
 class PaymentOut(PaymentCreate):
     id: int
     date: datetime
 
     class Config:
         from_attributes = True
-

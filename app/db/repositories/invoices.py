@@ -42,5 +42,7 @@ class PaymentsRepository:
         return payment
 
     async def list_by_invoice(self, invoice_id: int) -> list[Payment]:
-        result = await self.db.execute(select(Payment).where(Payment.invoice_id == invoice_id))
+        result = await self.db.execute(
+            select(Payment).where(Payment.invoice_id == invoice_id)
+        )
         return result.scalars().all()

@@ -11,7 +11,9 @@ from app.models.users import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
+):
     try:
         payload = decode_token(token)
         user_id: str = payload.get("sub")
@@ -29,14 +31,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
 
 def admin_only(user: User = Depends(get_current_user)):
     if user.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Solo el administrador puede realizar esta acción")
+        raise HTTPException(
+            status_code=403, detail="Solo el administrador puede realizar esta acción"
+        )
     return user
 
 
 def roles_allowed(*allowed_roles):
     def wrapper(user: User = Depends(get_current_user)):
-        if user.role.name not in allowed_roles:
-            raise HTTPException(status_code=403, detail="No tiene permiso para esta operación")
+        if user.role_id not in allowed_roles:
+            raise HTTPException(
+                status_code=403, detail="No tiene permiso para esta operación"
+            )
         return user
 
     return wrapper

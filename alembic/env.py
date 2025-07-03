@@ -1,7 +1,8 @@
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
+
+from alembic import context
 from app.models import *  # Importa todos los modelos para que Alembic pueda detectarlos
 
 # === CONFIG ALEMBIC ===

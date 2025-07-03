@@ -32,5 +32,3 @@ class WorkOrdersService:
         if not deleted:
             raise HTTPException(status_code=404, detail="Orden no encontrada")
         return {"detail": "Orden eliminada"}
-
-
