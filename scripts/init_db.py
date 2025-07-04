@@ -1,12 +1,16 @@
 # scripts/init_db.py
 
 import asyncio
+
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import engine
-from app.models.users import Role, User  # Asegurate que los modelos estén bien importados
+from app.models.users import (  # Asegurate que los modelos estén bien importados
+    Role,
+    User,
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -34,7 +38,9 @@ async def init():
         admin_role = result.scalars().first()
 
         if admin_role:
-            result = await session.execute(select(User).where(User.email == "admin@admin.com"))
+            result = await session.execute(
+                select(User).where(User.email == "admin@admin.com")
+            )
             existing_user = result.scalars().first()
 
             if not existing_user:

@@ -10,7 +10,9 @@ auth_router = APIRouter()
 
 
 @auth_router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
+):
     service = AuthService(db)
     user = await service.authenticate_user(form_data.username, form_data.password)
     token = service.login_token(user)
