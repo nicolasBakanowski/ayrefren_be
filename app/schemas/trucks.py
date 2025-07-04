@@ -1,6 +1,8 @@
 # app/schemas/truck.py
 from pydantic import BaseModel, conint, constr
 
+from app.schemas.clients import ClientOut
+
 
 class TruckBase(BaseModel):
     client_id: int
@@ -27,3 +29,8 @@ class TruckInDB(TruckBase):
 
     class Config:
         from_attributes = True
+
+
+class TruckWithClient(BaseModel):
+    truck: TruckInDB
+    client: ClientOut

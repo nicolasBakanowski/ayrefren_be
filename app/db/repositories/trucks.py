@@ -13,6 +13,12 @@ class TrucksRepository:
         result = await self.db.execute(select(Truck).where(Truck.id == truck_id))
         return result.scalars().first()
 
+    async def get_by_plate(self, license_plate: str) -> Truck | None:
+        result = await self.db.execute(
+            select(Truck).where(Truck.license_plate == license_plate)
+        )
+        return result.scalar_one_or_none()
+
     async def create(self, truck_data: TruckCreate) -> Truck:
         truck = Truck(**truck_data.model_dump())
         self.db.add(truck)

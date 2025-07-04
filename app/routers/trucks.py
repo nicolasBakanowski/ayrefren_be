@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.constants.roles import ADMIN, REVISOR
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
-from app.schemas.trucks import TruckCreate, TruckInDB, TruckUpdate
+from app.schemas.trucks import TruckCreate, TruckInDB, TruckUpdate, TruckWithClient
 from app.services.trucks import TrucksService
 
 trucks_router = APIRouter()
@@ -30,6 +30,16 @@ async def get_truck(
 ):
     service = TrucksService(db)
     return await service.get_truck(truck_id)
+
+
+@trucks_router.get("/plate/{license_plate}", response_model=TruckWithClient)
+async def get_truck_by_plate(
+    license_plate: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = TrucksService(db)
+    return await service.get_by_plate(license_plate)
 
 
 @trucks_router.post("/", response_model=TruckInDB)
