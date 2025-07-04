@@ -1,3 +1,4 @@
+from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -31,6 +32,32 @@ class TrucksRepository:
         await self.db.delete(truck)
         await self.db.commit()
 
-    async def list_all(self):
-        result = await self.db.execute(select(Truck))
+    async def list_all(
+        self,
+        client_id: int = None,
+        license_plate: str = None,
+        brand: str = None,
+        model: int = None,
+        year: int = None,
+    ):
+        filters = []
+
+        if client_id is not None:
+            filters.append(Truck.client_id == client_id)
+        if license_plate is not None:
+            filters.append(
+                Truck.license_plate.ilike(f"%{license_plate}%")
+            )  # búsqueda parcial
+        if brand is not None:
+            filters.append(Truck.brand.ilike(f"%{brand}%"))
+        if model is not None:
+            filters.append(Truck.model == model)
+        if year is not None:
+            filters.append(Truck.year == year)
+
+        query = select(Truck)
+        if filters:
+            query = query.where(and_(*filters))
+
+        result = await self.db.execute(query)
         return result.scalars().all()

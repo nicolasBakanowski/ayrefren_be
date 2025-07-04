@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,8 +39,21 @@ class TrucksService:
             )
         await self.repo.delete(truck)
 
-    async def list_trucks(self):
-        trucks = await self.repo.list_all()
+    async def list_trucks(
+        self,
+        client_id: int = None,
+        license_plate: str = None,
+        brand: str = None,
+        model: int = None,
+        year: int = None,
+    ) -> List[Truck]:
+        trucks = await self.repo.list_all(
+            client_id=client_id,
+            license_plate=license_plate,
+            brand=brand,
+            model=model,
+            year=year,
+        )
         if not trucks:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="No trucks found"

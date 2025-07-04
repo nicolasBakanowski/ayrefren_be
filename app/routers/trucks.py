@@ -14,12 +14,23 @@ trucks_router = APIRouter()
 
 @trucks_router.get("/", response_model=List[TruckInDB])
 async def list_trucks(
+    client_id: int = None,
+    license_plate: str = None,
+    brand: str = None,
+    model: str = None,
+    year: int = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     # Podés hacer paginación acá, filtro, etc.
     service = TrucksService(db)
-    return await service.list_trucks()
+    return await service.list_trucks(
+        client_id=client_id,
+        license_plate=license_plate,
+        brand=brand,
+        model=model,
+        year=year,
+    )
 
 
 @trucks_router.get("/{truck_id}", response_model=TruckInDB)
