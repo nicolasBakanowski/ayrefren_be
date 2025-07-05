@@ -1,5 +1,5 @@
 from enum import Enum
-
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -17,7 +17,7 @@ class ClientCreate(BaseModel):
 
 class ClientOut(ClientCreate):
     id: int
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True

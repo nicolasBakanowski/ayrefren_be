@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.schemas.clients import ClientOut
+from app.schemas.clients import ClientOut, ClientCreate
 from app.services.clients import ClientsService
 
 clients_router = APIRouter()
@@ -15,7 +15,7 @@ async def list_clients(db: AsyncSession = Depends(get_db)):
 
 
 @clients_router.post("/", response_model=ClientOut)
-async def create_client(client_in: ClientOut, db: AsyncSession = Depends(get_db)):
+async def create_client(client_in: ClientCreate, db: AsyncSession = Depends(get_db)):
     service = ClientsService(db)
     return await service.create_client(client_in)
 
