@@ -24,3 +24,8 @@ docker compose up --build
 
 El servicio `migrate` ejecuta `alembic upgrade head` y, una vez finalizado,
 inicia el servicio `web`.
+
+
+alembic revision --autogenerate -m "corrections"
+
+

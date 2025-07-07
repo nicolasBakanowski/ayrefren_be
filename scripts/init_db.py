@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import engine
+from app.models import InvoiceStatus, PaymentMethod
+from app.models.invoices import InvoiceType
 from app.models.users import (  # Asegurate que los modelos estén bien importados
     Role,
     User,
@@ -16,8 +18,21 @@ from app.models.work_orders import WorkOrderStatus
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+async def create_data(data, session, model):
+    # PARA TODOS LOS MODELOS CON CAMPOS "id" y "name"
+    for key, value in data.items():
+        result = await session.execute(
+            select(model).where(model.id == key)
+        )
+        existing_status = result.scalars().first()
+        if not existing_status:
+            session.add(model(id=key, name=value))
+    await session.commit()
+
+
 async def init():
     async with AsyncSession(engine) as session:
+        # Insertar los roles de usuario
         roles = {
             "admin": "Administrador del sistema",
             "mechanic": "Mecánico",
@@ -34,21 +49,40 @@ async def init():
 
         await session.commit()
 
+        # Insertar los estados de las órdenes de trabajo
         statuses = {
             1: "Pendiente",
             2: "En progreso",
             3: "Finalizado",
         }
+        await create_data(statuses, session, WorkOrderStatus)
 
-        for sid, name in statuses.items():
-            result = await session.execute(
-                select(WorkOrderStatus).where(WorkOrderStatus.id == sid)
-            )
-            existing_status = result.scalars().first()
-            if not existing_status:
-                session.add(WorkOrderStatus(id=sid, name=name))
+        # Insertar tipos de facturas
+        invoice_types = {
+            1: "Factura A",
+            2: "Factura C",
+            3: "Remito",
+        }
+        await create_data(invoice_types, session, InvoiceType)
 
-        await session.commit()
+        # Insertar estados de las facturas
+        invoice_statuses = {
+            1: "Pendiente",
+            2: "Pagada",
+            3: "Anulada",
+            4: "Entrega Parcial",
+        }
+        await create_data(invoice_statuses, session, InvoiceStatus)
+
+        # Insertar moteodos de pago
+        payment_methods = {
+            1: "Efectivo",
+            2: "Tarjeta de crédito",
+            3: "Transferencia bancaria",
+            4: "Cheque",
+            5: "Cheque electrónico",
+        }
+        await create_data(payment_methods, session, PaymentMethod)
 
         # Obtener el rol "admin" ya insertado
         result = await session.execute(select(Role).where(Role.name == "admin"))

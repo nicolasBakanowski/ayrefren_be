@@ -1,6 +1,7 @@
 from datetime import datetime
+from enum import Enum
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Column, DateTime, Enum as SqlEnum, ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -15,7 +16,7 @@ class InvoiceStatus(Base):
 class InvoiceType(Base):
     __tablename__ = "invoice_types"
     id = Column(Integer, primary_key=True)
-    code = Column(String(2), unique=True)
+    name = Column(String(50), unique=True)
 
 
 class Invoice(Base):
@@ -60,3 +61,27 @@ class Payment(Base):
 
     invoice = relationship("Invoice", back_populates="payments")
     method = relationship("PaymentMethod")
+    bank_checks = relationship(
+        "BankCheck",
+        back_populates="payment",
+        cascade="all, delete-orphan",
+    )
+
+
+class BankCheckType(str, Enum):
+    PHYSICAL = "physical"
+    ELECTRONIC = "electronic"
+
+
+class BankCheck(Base):
+    __tablename__ = "bank_checks"
+
+    id = Column(Integer, primary_key=True)
+    bank_name = Column(String(100), nullable=False)
+    check_number = Column(String(50), nullable=False)
+    amount = Column(Numeric(10, 2), nullable=False)
+    issued_at = Column(DateTime, default=datetime.utcnow)
+    type = Column(SqlEnum(BankCheckType), nullable=False)
+    payment_id = Column(Integer, ForeignKey("payments.id"), nullable=False)
+    payment = relationship("Payment", back_populates="bank_checks")
+
