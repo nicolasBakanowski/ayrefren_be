@@ -1,23 +1,20 @@
+import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
-
+from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy import pool
 from alembic import context
-from app.models import *  # Importa todos los modelos para que Alembic pueda detectarlos
 
-# === CONFIG ALEMBIC ===
+from app.models import *  # todos los modelos importados
+from app.core.database import Base  # tu Base declarativa
+
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# === IMPORTA LOS MODELOS Y METADATA ===
-from app.core.database import Base
-
 target_metadata = Base.metadata
 
-
-# === MIGRACIONES OFFLINE ===
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -29,25 +26,23 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-
-# === MIGRACIONES ONLINE ===
-def run_migrations_online() -> None:
-    connectable = engine_from_config(
+async def run_migrations_online() -> None:
+    connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-        )
-        with context.begin_transaction():
-            context.run_migrations()
 
+    async with connectable.connect() as async_connection:
+        # 👇 Esto es CLAVE: pasar toda la migración a un bloque sync
+        def do_migrations(sync_connection):
+            context.configure(connection=sync_connection, target_metadata=target_metadata)
+            with context.begin_transaction():
+                context.run_migrations()
 
-# === EJECUCIÓN ===
+        await async_connection.run_sync(do_migrations)
+
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online()
+    asyncio.run(run_migrations_online())
