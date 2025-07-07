@@ -11,6 +11,7 @@ from app.models.users import (  # Asegurate que los modelos estén bien importad
     Role,
     User,
 )
+from app.models.work_orders import WorkOrderStatus
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,6 +31,22 @@ async def init():
 
             if not existing_role:
                 session.add(Role(name=name, description=desc))
+
+        await session.commit()
+
+        statuses = {
+            1: "Pendiente",
+            2: "En progreso",
+            3: "Finalizado",
+        }
+
+        for sid, name in statuses.items():
+            result = await session.execute(
+                select(WorkOrderStatus).where(WorkOrderStatus.id == sid)
+            )
+            existing_status = result.scalars().first()
+            if not existing_status:
+                session.add(WorkOrderStatus(id=sid, name=name))
 
         await session.commit()
 
