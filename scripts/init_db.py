@@ -78,9 +78,9 @@ async def init():
         payment_methods = {
             1: "Efectivo",
             2: "Tarjeta de crédito",
-            3: "Transferencia bancaria",
-            4: "Cheque",
-            5: "Cheque electrónico",
+            3: "Tarjeta de débito",
+            4: "Transferencia bancaria",
+            5: "Cheque",   # AQUI TENEMOS DOS TIPOS ELECTRONICOS Y FISICOS
         }
         await create_data(payment_methods, session, PaymentMethod)
 
