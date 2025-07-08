@@ -1,5 +1,6 @@
 # app/schemas/truck.py
 from pydantic import BaseModel, conint, constr
+from datetime import datetime
 
 
 class TruckBase(BaseModel):
@@ -23,7 +24,8 @@ class TruckUpdate(BaseModel):
 
 class TruckInDB(TruckBase):
     id: int
-    created_at: str
+    created_at: datetime
+
 
     class Config:
         from_attributes = True
