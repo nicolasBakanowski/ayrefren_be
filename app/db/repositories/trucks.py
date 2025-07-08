@@ -1,6 +1,7 @@
 from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 
 from app.models.trucks import Truck
 from app.schemas.trucks import TruckCreate
@@ -11,7 +12,9 @@ class TrucksRepository:
         self.db = db
 
     async def get_by_id(self, truck_id: int) -> Truck | None:
-        result = await self.db.execute(select(Truck).where(Truck.id == truck_id))
+        result = await self.db.execute(
+            select(Truck).options(selectinload(Truck.client)).where(Truck.id == truck_id)
+        )
         return result.scalars().first()
 
     async def create(self, truck_data: TruckCreate) -> Truck:
@@ -19,14 +22,14 @@ class TrucksRepository:
         self.db.add(truck)
         await self.db.commit()
         await self.db.refresh(truck)
-        return truck
+        return await self.get_by_id(truck.id)
 
     async def update(self, db: AsyncSession, truck: Truck, update_data: dict) -> Truck:
         for key, value in update_data.items():
             setattr(truck, key, value)
         await db.commit()
         await db.refresh(truck)
-        return truck
+        return await self.get_by_id(truck.id)
 
     async def delete(self, truck: Truck) -> None:
         await self.db.delete(truck)
@@ -55,7 +58,7 @@ class TrucksRepository:
         if year is not None:
             filters.append(Truck.year == year)
 
-        query = select(Truck)
+        query = select(Truck).options(selectinload(Truck.client))
         if filters:
             query = query.where(and_(*filters))
 

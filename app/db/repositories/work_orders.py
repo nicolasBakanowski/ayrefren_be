@@ -2,6 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
+from app.models.trucks import Truck
+
 from app.models.work_orders import WorkOrder
 
 
@@ -21,7 +23,7 @@ class WorkOrdersRepository:
             select(WorkOrder)
             .options(
                 selectinload(WorkOrder.status),
-                selectinload(WorkOrder.truck),
+                selectinload(WorkOrder.truck).selectinload(Truck.client),
                 selectinload(WorkOrder.reviewer),
             )
             .where(WorkOrder.id == work_order_id)
@@ -32,7 +34,7 @@ class WorkOrdersRepository:
         result = await self.db.execute(
             select(WorkOrder).options(
                 selectinload(WorkOrder.status),
-                selectinload(WorkOrder.truck),
+                selectinload(WorkOrder.truck).selectinload(Truck.client),
                 selectinload(WorkOrder.reviewer),
             )
         )
