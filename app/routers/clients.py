@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional
 
 from app.core.database import get_db
 from app.schemas.clients import ClientOut, ClientCreate
@@ -9,9 +10,20 @@ clients_router = APIRouter()
 
 
 @clients_router.get("/", response_model=list[ClientOut])
-async def list_clients(db: AsyncSession = Depends(get_db)):
+async def list_clients(
+    type: Optional[str] = Query(None),
+    name: Optional[str] = Query(None),
+    document_number: Optional[str] = Query(None),
+    phone: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
     service = ClientsService(db)
-    return await service.get_all_clients()
+    return await service.get_all_clients(
+        type=type,
+        name=name,
+        document_number=document_number,
+        phone=phone,
+    )
 
 
 @clients_router.post("/", response_model=ClientOut)
