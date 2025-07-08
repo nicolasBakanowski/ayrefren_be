@@ -2,6 +2,9 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
+from app.schemas.clients import ClientOut
+from app.schemas.trucks import TruckInDB
+from app.schemas.users import UserOut
 
 
 class WorkOrderBase(BaseModel):
@@ -18,11 +21,6 @@ class WorkOrderCreate(WorkOrderBase):
 class WorkOrderUpdate(BaseModel):
     status_id: Optional[int]
     notes: Optional[str]
-
-
-from app.schemas.clients import ClientOut
-from app.schemas.trucks import TruckInDB
-from app.schemas.users import UserOut
 
 
 class WorkOrderStatusOut(BaseModel):
