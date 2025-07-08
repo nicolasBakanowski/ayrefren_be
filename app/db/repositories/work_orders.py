@@ -9,7 +9,7 @@ class WorkOrdersRepository:
         self.db = db
 
     async def create(self, work_order_data) -> WorkOrder:
-        work_order = WorkOrder(**work_order_data.dict())
+        work_order = WorkOrder(**work_order_data.model_dump())
         self.db.add(work_order)
         await self.db.commit()
         await self.db.refresh(work_order)

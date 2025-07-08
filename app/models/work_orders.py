@@ -18,6 +18,7 @@ class WorkOrder(Base):
     __tablename__ = "work_orders"
 
     id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey("clients.id"))
     truck_id = Column(Integer, ForeignKey("trucks.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
     status_id = Column(Integer, ForeignKey("work_order_statuses.id"))
@@ -26,6 +27,7 @@ class WorkOrder(Base):
 
     status = relationship("WorkOrderStatus")
     truck = relationship("Truck")
+    client = relationship("Client")
     reviewer = relationship("User", foreign_keys=[reviewed_by])
     mechanics = relationship("WorkOrderMechanic", back_populates="work_order")
     tasks = relationship("WorkOrderTask", back_populates="work_order")
