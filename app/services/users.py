@@ -28,8 +28,8 @@ class UsersService:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
         return user
 
-    async def list_users(self):
-        return await self.repo.list()
+    async def list_users(self, role_id: int = None):
+        return await self.repo.list(role_id)
 
     async def update_user(self, user_id: int, user_in: UserCreate):
         user = await self.repo.get_by_id(user_id)
@@ -45,7 +45,7 @@ class UsersService:
         return {"detail": "Usuario eliminado exitosamente"}
 
     async def change_password(
-        self, user_id: int, change_password_data: ChangePasswordSchema
+            self, user_id: int, change_password_data: ChangePasswordSchema
     ):
         old_password = change_password_data.old_password
         new_password = change_password_data.new_password
