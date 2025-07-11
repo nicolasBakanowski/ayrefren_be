@@ -1,4 +1,5 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
@@ -14,3 +15,4 @@ class Truck(Base):
     model = Column(String(50))
     year = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    client = relationship("Client")
