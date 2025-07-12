@@ -3,6 +3,7 @@
 import asyncio
 
 from passlib.context import CryptContext
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -32,6 +33,24 @@ async def create_data(data, session, model):
 
 async def init():
     async with AsyncSession(engine) as session:
+        # Ensure work_areas table exists and insert default values
+        await session.execute(
+            text(
+                "CREATE TABLE IF NOT EXISTS work_areas (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL UNIQUE)"
+            )
+        )
+        await session.execute(
+            text(
+                (
+                    "INSERT INTO work_areas (id, name) VALUES"
+                    " (1, 'Mecánico Aire'),"
+                    " (2, 'Mecánico General')"
+                    " ON CONFLICT DO NOTHING"
+                )
+            )
+        )
+        await session.commit()
+
         # Insertar los roles de usuario
         roles = {
             "admin": "Administrador del sistema",
