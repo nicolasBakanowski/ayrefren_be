@@ -104,8 +104,8 @@ async def init():
 
         # Insert sample parts
         sample_parts = [
-            {"id": 1, "name": "Filtro de aceite", "price": 100.0},
-            {"id": 2, "name": "Bujía", "price": 50.0},
+            {"id": 1, "name": "Filtro de aceite", "price": 120.0, "cost": 80.0},
+            {"id": 2, "name": "Bujía", "price": 60.0, "cost": 40.0},
         ]
         for part in sample_parts:
             result = await session.execute(select(Part).where(Part.id == part["id"]))
