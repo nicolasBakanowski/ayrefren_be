@@ -7,7 +7,7 @@ from app.core.dependencies import roles_allowed
 from app.schemas.parts import PartCreate, PartOut, PartUpdate
 from app.services.parts import PartsService
 
-parts_router = APIRouter()
+parts_router = APIRouter(prefix="/parts", tags=["Repuestos"])
 
 
 @parts_router.get("/", response_model=list[PartOut])
