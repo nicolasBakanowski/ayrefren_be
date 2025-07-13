@@ -15,6 +15,7 @@ from app.models.users import (  # Asegurate que los modelos estén bien importad
     User,
 )
 from app.models.work_orders import WorkOrderStatus
+from app.models.work_order_parts import Part
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -22,9 +23,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def create_data(data, session, model):
     # PARA TODOS LOS MODELOS CON CAMPOS "id" y "name"
     for key, value in data.items():
-        result = await session.execute(
-            select(model).where(model.id == key)
-        )
+        result = await session.execute(select(model).where(model.id == key))
         existing_status = result.scalars().first()
         if not existing_status:
             session.add(model(id=key, name=value))
@@ -99,9 +98,21 @@ async def init():
             2: "Tarjeta de crédito",
             3: "Tarjeta de débito",
             4: "Transferencia bancaria",
-            5: "Cheque",   # AQUI TENEMOS DOS TIPOS ELECTRONICOS Y FISICOS
+            5: "Cheque",  # AQUI TENEMOS DOS TIPOS ELECTRONICOS Y FISICOS
         }
         await create_data(payment_methods, session, PaymentMethod)
+
+        # Insert sample parts
+        sample_parts = [
+            {"id": 1, "name": "Filtro de aceite", "price": 100.0},
+            {"id": 2, "name": "Bujía", "price": 50.0},
+        ]
+        for part in sample_parts:
+            result = await session.execute(select(Part).where(Part.id == part["id"]))
+            existing = result.scalars().first()
+            if not existing:
+                session.add(Part(**part))
+        await session.commit()
 
         # Obtener el rol "admin" ya insertado
         result = await session.execute(select(Role).where(Role.name == "admin"))
