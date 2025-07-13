@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.models.work_order_parts import Part
+from app.models.parts import Part
 from app.schemas.parts import PartCreate, PartUpdate
 
 

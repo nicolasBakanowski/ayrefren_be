@@ -10,12 +10,12 @@ from sqlalchemy.future import select
 from app.core.database import engine
 from app.models import InvoiceStatus, PaymentMethod
 from app.models.invoices import InvoiceType
+from app.models.parts import Part
 from app.models.users import (  # Asegurate que los modelos estén bien importados
     Role,
     User,
 )
 from app.models.work_orders import WorkOrderStatus
-from app.models.work_order_parts import Part
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

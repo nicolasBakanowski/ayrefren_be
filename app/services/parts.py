@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.repositories.parts import PartsRepository
-from app.models.work_order_parts import Part
+from app.models.parts import Part
 from app.schemas.parts import PartCreate, PartUpdate
 
 
