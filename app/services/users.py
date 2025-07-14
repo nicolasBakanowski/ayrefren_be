@@ -45,7 +45,7 @@ class UsersService:
         return {"detail": "Usuario eliminado exitosamente"}
 
     async def change_password(
-            self, user_id: int, change_password_data: ChangePasswordSchema
+        self, user_id: int, change_password_data: ChangePasswordSchema
     ):
         old_password = change_password_data.old_password
         new_password = change_password_data.new_password

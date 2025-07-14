@@ -5,6 +5,7 @@ from app.routers import (
     auth_router,
     clients_router,
     invoice_router,
+    parts_router,
     reports_router,
     trucks_router,
     users_router,
@@ -66,7 +67,9 @@ def include_routers(app: FastAPI) -> None:
 
     app.include_router(reports_router, prefix="/reports", tags=["Reportes"])
 
-    app.include_router(trucks_router, prefix="/trucks", tags=["Trucks"])
+    app.include_router(trucks_router, prefix="/trucks", tags=["Camiones"])
+
+    app.include_router(parts_router, prefix="/parts", tags=["Repuestos"])
 
 
 # Inicializa la app

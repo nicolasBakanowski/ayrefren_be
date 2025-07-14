@@ -1,9 +1,10 @@
 # app/schemas/truck.py
-from pydantic import BaseModel, conint, constr
+from datetime import datetime
 from typing import Optional
 
+from pydantic import BaseModel, conint, constr
+
 from app.schemas.clients import ClientOut
-from datetime import datetime
 
 
 class TruckBase(BaseModel):
@@ -29,7 +30,6 @@ class TruckInDB(TruckBase):
     id: int
     created_at: datetime
     client: Optional[ClientOut] = None
-
 
     class Config:
         from_attributes = True

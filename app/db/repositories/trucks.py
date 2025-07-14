@@ -13,7 +13,9 @@ class TrucksRepository:
 
     async def get_by_id(self, truck_id: int) -> Truck | None:
         result = await self.db.execute(
-            select(Truck).options(selectinload(Truck.client)).where(Truck.id == truck_id)
+            select(Truck)
+            .options(selectinload(Truck.client))
+            .where(Truck.id == truck_id)
         )
         return result.scalars().first()
 

@@ -1,7 +1,9 @@
+from typing import Optional
+
+from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import Optional
-from sqlalchemy import and_
+
 from app.models.clients import Client
 from app.schemas.clients import ClientCreate
 
@@ -41,6 +43,7 @@ class ClientsRepository:
 
         result = await self.db.execute(query)
         return result.scalars().all()
+
     async def get_by_id(self, client_id: int) -> Client | None:
         result = await self.db.execute(select(Client).where(Client.id == client_id))
         return result.scalar_one_or_none()

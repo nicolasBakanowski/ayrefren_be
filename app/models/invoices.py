@@ -1,7 +1,9 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Column, DateTime, Enum as SqlEnum, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Column, DateTime
+from sqlalchemy import Enum as SqlEnum
+from sqlalchemy import ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -84,4 +86,3 @@ class BankCheck(Base):
     type = Column(SqlEnum(BankCheckType), nullable=False)
     payment_id = Column(Integer, ForeignKey("payments.id"), nullable=False)
     payment = relationship("Payment", back_populates="bank_checks")
-

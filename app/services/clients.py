@@ -1,9 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
+
+from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.repositories.clients import ClientsRepository
 from app.schemas.clients import ClientCreate
-from fastapi import HTTPException, status
 
 
 class ClientsService:
@@ -27,7 +28,9 @@ class ClientsService:
             phone=phone,
         )
         if not clients:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Client Found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Not Client Found"
+            )
         return clients
 
     async def get_client_by_id(self, id: int):

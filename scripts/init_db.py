@@ -9,11 +9,13 @@ from sqlalchemy.future import select
 from app.core.database import engine
 from app.models import InvoiceStatus, PaymentMethod
 from app.models.invoices import InvoiceType
+from app.models.parts import Part
 from app.models.users import (  # Asegurate que los modelos estén bien importados
     Role,
     User,
 )
 from app.models.work_orders import WorkOrderStatus
+from app.models.work_orders_mechanic import WorkArea
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -21,9 +23,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def create_data(data, session, model):
     # PARA TODOS LOS MODELOS CON CAMPOS "id" y "name"
     for key, value in data.items():
-        result = await session.execute(
-            select(model).where(model.id == key)
-        )
+        result = await session.execute(select(model).where(model.id == key))
         existing_status = result.scalars().first()
         if not existing_status:
             session.add(model(id=key, name=value))
@@ -80,14 +80,32 @@ async def init():
             2: "Tarjeta de crédito",
             3: "Tarjeta de débito",
             4: "Transferencia bancaria",
-            5: "Cheque",   # AQUI TENEMOS DOS TIPOS ELECTRONICOS Y FISICOS
+            5: "Cheque",  # AQUI TENEMOS DOS TIPOS ELECTRONICOS Y FISICOS
         }
         await create_data(payment_methods, session, PaymentMethod)
+
+        # Work Areas
+        work_areas = {
+            1: "Mecánica Aire",
+            2: "Mecánica general",
+        }
+        await create_data(work_areas, session, WorkArea)
+
+        # Sample Parts
+        sample_parts = [
+            {"id": 1, "name": "Filtro de aceite", "price": 80.0},
+            {"id": 2, "name": "Bujía", "price": 40.0},
+        ]
+        for part in sample_parts:
+            result = await session.execute(select(Part).where(Part.id == part["id"]))
+            existing = result.scalars().first()
+            if not existing:
+                session.add(Part(**part))
+        await session.commit()
 
         # Obtener el rol "admin" ya insertado
         result = await session.execute(select(Role).where(Role.name == "admin"))
         admin_role = result.scalars().first()
-
         if admin_role:
             result = await session.execute(
                 select(User).where(User.email == "admin@admin.com")

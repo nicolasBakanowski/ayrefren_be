@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Optional
 
+from pydantic import BaseModel
+
 from app.schemas.trucks import TruckInDB
 from app.schemas.users import UserOut
-
-from pydantic import BaseModel
 
 
 class WorkOrderBase(BaseModel):
