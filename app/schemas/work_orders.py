@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
 from app.schemas.trucks import TruckInDB
 from app.schemas.users import UserOut
+
+from .work_order_tasks import WorkOrderTaskOut
+from .work_orders_mechanic import WorkOrderMechanicOut
 
 
 class WorkOrderBase(BaseModel):
@@ -22,21 +25,23 @@ class WorkOrderUpdate(BaseModel):
     notes: Optional[str]
 
 
-class WorkOrderOut(WorkOrderBase):
+class WorkOrderStatusOut(BaseModel):
     id: int
-    created_at: datetime
-    truck: Optional[TruckInDB] = None
-    status: Optional["WorkOrderStatusOut"] = None
-    reviewer: Optional[UserOut] = None
+    name: str
+    description: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 
-class WorkOrderStatusOut(BaseModel):
+class WorkOrderOut(WorkOrderBase):
     id: int
-    name: str
-    description: Optional[str] = None
+    created_at: datetime
+    truck: Optional[TruckInDB] = None
+    status: Optional[WorkOrderStatusOut] = None
+    tasks: Optional[List[WorkOrderTaskOut]] = None
+    mechanics: Optional[List[WorkOrderMechanicOut]] = None
+    reviewer: Optional[UserOut] = None
 
     class Config:
         from_attributes = True

@@ -10,9 +10,7 @@ class PartsRepository:
         self.db = db
 
     async def get_by_id(self, part_id: int) -> Part | None:
-        result = await self.db.execute(
-            select(Part).where(Part.id == part_id)
-        )
+        result = await self.db.execute(select(Part).where(Part.id == part_id))
         return result.scalar_one_or_none()
 
     async def list_all(self) -> list[Part]:
