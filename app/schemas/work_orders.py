@@ -47,3 +47,8 @@ class WorkOrderOut(WorkOrderBase):
 
     class Config:
         from_attributes = True
+
+
+class WorkOrderReviewer(BaseModel):
+    work_order_id: int
+    reviewer_id: int

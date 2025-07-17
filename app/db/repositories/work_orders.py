@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
+from app.models import WorkOrderPart
 from app.models.trucks import Truck
 from app.models.work_orders import WorkOrder
 
@@ -26,7 +27,7 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.reviewer),
                 selectinload(WorkOrder.mechanics),
                 selectinload(WorkOrder.tasks),
-                selectinload(WorkOrder.parts),
+                selectinload(WorkOrder.parts).selectinload(WorkOrderPart.part),
             )
             .where(WorkOrder.id == work_order_id)
         )
@@ -45,10 +46,11 @@ class WorkOrdersRepository:
         )
         return result.scalars().all()
 
-    async def update(self, work_order_id: int, data: dict) -> WorkOrder | None:
+    async def update(self, work_order_id: int, data: dict) -> WorkOrder | bool:
         work_order = await self.get(work_order_id)
         if not work_order:
-            return None
+            return False
+
         for key, value in data.items():
             setattr(work_order, key, value)
         await self.db.commit()

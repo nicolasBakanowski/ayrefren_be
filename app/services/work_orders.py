@@ -32,3 +32,18 @@ class WorkOrdersService:
         if not deleted:
             raise HTTPException(status_code=404, detail="Orden no encontrada")
         return {"detail": "Orden eliminada"}
+
+    async def assign_reviewer(self, work_order_id: int, reviewer_id: int):
+        await self.get_work_order(work_order_id)
+        await self.repo.update(work_order_id, {"reviewed_by": reviewer_id})
+        return await self.repo.get(work_order_id)
+
+    async def remove_reviewer(self, work_order_id: int, reviewer_id: int):
+        await self.get_work_order(work_order_id)
+        work_order = await self.repo.get(work_order_id)
+        if work_order.reviewed_by != reviewer_id:
+            raise HTTPException(
+                status_code=400, detail="Revisor no asignado a esta orden"
+            )
+        await self.repo.update(work_order_id, {"reviewed_by": None})
+        return await self.repo.get(work_order_id)

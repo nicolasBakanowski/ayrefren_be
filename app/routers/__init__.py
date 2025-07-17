@@ -9,6 +9,7 @@ from .work_order_parts import work_order_parts_router
 from .work_order_tasks import work_order_tasks_router
 from .work_orders import work_orders_router
 from .work_orders_mechanic import work_orders_mechanic_router
+from .work_orders_reviewer import work_orders_reviewer_router
 
 __all__ = [
     "clients_router",
@@ -22,4 +23,5 @@ __all__ = [
     "trucks_router",
     "auth_router",
     "parts_router",
+    "work_orders_reviewer_router",
 ]

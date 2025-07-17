@@ -12,6 +12,7 @@ from app.routers import (
     work_order_parts_router,
     work_order_tasks_router,
     work_orders_mechanic_router,
+    work_orders_reviewer_router,
     work_orders_router,
 )
 
@@ -62,6 +63,12 @@ def include_routers(app: FastAPI) -> None:
         work_order_parts_router,
         prefix="/work-orders/parts",
         tags=["Repuestos en Órdenes"],
+    )
+
+    app.include_router(
+        work_orders_reviewer_router,
+        prefix="/work-orders/reviewer",
+        tags=["Revisores de Órdenes"],
     )
     app.include_router(invoice_router, prefix="/invoices", tags=["Facturación"])
 
