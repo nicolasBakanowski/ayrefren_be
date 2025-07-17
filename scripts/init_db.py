@@ -54,6 +54,7 @@ async def init():
             1: "Pendiente",
             2: "En progreso",
             3: "Finalizado",
+            4: "Emitido"
         }
         await create_data(statuses, session, WorkOrderStatus)
 
