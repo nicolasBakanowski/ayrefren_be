@@ -24,6 +24,9 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.status),
                 selectinload(WorkOrder.truck).selectinload(Truck.client),
                 selectinload(WorkOrder.reviewer),
+                selectinload(WorkOrder.mechanics),
+                selectinload(WorkOrder.tasks),
+                selectinload(WorkOrder.parts),
             )
             .where(WorkOrder.id == work_order_id)
         )

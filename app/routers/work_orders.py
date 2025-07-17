@@ -17,7 +17,8 @@ async def create_order(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = WorkOrdersService(db)
-    return await service.create_work_order(data)
+    work_order = await service.create_work_order(data)
+    return work_order
 
 
 @work_orders_router.get("/", response_model=list[WorkOrderOut])
