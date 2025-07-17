@@ -27,7 +27,8 @@ async def list_orders(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrdersService(db)
-    return await service.list_work_orders()
+    orders = await service.list_work_orders()
+    return orders
 
 
 @work_orders_router.get("/{order_id}", response_model=WorkOrderOut)

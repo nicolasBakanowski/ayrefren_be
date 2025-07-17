@@ -45,21 +45,5 @@ class WorkOrderOut(WorkOrderBase):
     reviewer: Optional[UserOut] = None
     parts: List[WorkOrderPartOut] = []
 
-    @staticmethod
-    def resolve_tasks(work_order):
-        return [task for task in work_order.tasks] if work_order.tasks else []
-
-    @staticmethod
-    def resolve_mechanics(work_order):
-        return (
-            [mechanic for mechanic in work_order.mechanics]
-            if work_order.mechanics
-            else []
-        )
-
-    @staticmethod
-    def resolve_parts(work_order):
-        return [part for part in work_order.parts] if work_order.parts else []
-
     class Config:
         from_attributes = True
