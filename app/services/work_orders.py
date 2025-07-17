@@ -25,7 +25,7 @@ class WorkOrdersService:
         updated = await self.repo.update(work_order_id, data.dict(exclude_unset=True))
         if not updated:
             raise HTTPException(status_code=404, detail="Orden no encontrada")
-        return updated
+        return await self.repo.get(work_order_id)
 
     async def delete_work_order(self, work_order_id: int):
         deleted = await self.repo.delete(work_order_id)
