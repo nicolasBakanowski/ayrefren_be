@@ -9,6 +9,7 @@ class WorkOrderPartBase(BaseModel):
     quantity: int
     unit_price: float
     subtotal: float
+    increment_per_unit: float = 1.0  # Default increment per unit
 
 
 class WorkOrderPartCreate(WorkOrderPartBase):
