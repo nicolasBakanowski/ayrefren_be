@@ -19,7 +19,11 @@ class WorkOrderPartsRepository:
 
     async def list_by_work_order(self, work_order_id: int) -> list[WorkOrderPart]:
         result = await self.db.execute(
-            select(WorkOrderPart).where(WorkOrderPart.work_order_id == work_order_id)
+            select(WorkOrderPart)
+            .options(
+                selectinload(WorkOrderPart.part), selectinload(WorkOrderPart.work_order)
+            )
+            .where(WorkOrderPart.work_order_id == work_order_id)
         )
         return result.scalars().all()
 
@@ -35,8 +39,9 @@ class WorkOrderPartsRepository:
         result = await self.db.execute(
             select(WorkOrderPart)
             .options(
-                selectinload(WorkOrderPart.part),
-                selectinload(WorkOrderPart.work_order)
-            ).where(WorkOrderPart.id == work_order_part_id))
+                selectinload(WorkOrderPart.part), selectinload(WorkOrderPart.work_order)
+            )
+            .where(WorkOrderPart.id == work_order_part_id)
+        )
 
         return result.scalar_one_or_none()

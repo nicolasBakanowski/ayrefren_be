@@ -22,7 +22,8 @@ class WorkOrdersRepository:
             select(WorkOrder)
             .options(
                 selectinload(WorkOrder.status),
-                selectinload(WorkOrder.truck).selectinload(Truck.client),
+                selectinload(WorkOrder.truck),
+                selectinload(Truck.client),
                 selectinload(WorkOrder.reviewer),
                 selectinload(WorkOrder.mechanics),
                 selectinload(WorkOrder.tasks),
