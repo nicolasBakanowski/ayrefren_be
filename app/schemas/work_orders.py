@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from app.schemas.trucks import TruckInDB
 from app.schemas.users import UserOut
 
+from .work_order_parts import WorkOrderPartOut
 from .work_order_tasks import WorkOrderTaskOut
 from .work_orders_mechanic import WorkOrderMechanicOut
 
@@ -42,6 +43,7 @@ class WorkOrderOut(WorkOrderBase):
     tasks: Optional[List[WorkOrderTaskOut]] = None
     mechanics: Optional[List[WorkOrderMechanicOut]] = None
     reviewer: Optional[UserOut] = None
+    parts: Optional[List[WorkOrderPartOut]] = None
 
     class Config:
         from_attributes = True

@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from app.schemas.parts import PartOut
+
 
 class WorkOrderPartBase(BaseModel):
     work_order_id: int
@@ -15,6 +17,7 @@ class WorkOrderPartCreate(WorkOrderPartBase):
 
 class WorkOrderPartOut(WorkOrderPartBase):
     id: int
+    part: PartOut
 
     class Config:
         from_attributes = True
