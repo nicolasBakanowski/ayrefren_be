@@ -41,7 +41,7 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.reviewer),
                 selectinload(WorkOrder.mechanics),
                 selectinload(WorkOrder.tasks),
-                selectinload(WorkOrder.parts),
+                selectinload(WorkOrder.parts).selectinload(WorkOrderPart.part),
             )
         )
         return result.scalars().all()
