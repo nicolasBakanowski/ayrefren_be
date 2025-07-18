@@ -83,7 +83,7 @@ docker compose -f docker-compose.dev.yml run --rm web \
 
 ## Calcular total de una orden
 
-La API expone el endpoint `GET /work-orders/{id}/total` que suma el costo de las tareas registradas y los repuestos utilizados (aplicando el incremento porcentual de cada pieza). Esto permite conocer el monto a facturar por una reparación antes de emitir la factura.
+La API expone el endpoint `GET /orders/{id}/total` que suma el costo de las tareas registradas y los repuestos utilizados (aplicando el incremento porcentual de cada pieza). Esto permite conocer el monto a facturar por una reparación antes de emitir la factura.
 
 ## Detalle de facturas con recargo
 

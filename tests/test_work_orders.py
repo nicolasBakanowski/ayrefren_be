@@ -266,7 +266,7 @@ def test_order_total_with_increments(client):
             return order.id
 
     order_id = asyncio.run(seed_data())
-    resp = http.get(f"/work-orders/{order_id}/total")
+    resp = http.get(f"/orders/{order_id}/total")
     assert resp.status_code == 200
     # 2 parts * 10 + 10% = 22; plus task 30 => 52
     assert resp.json()["total"] == 52
