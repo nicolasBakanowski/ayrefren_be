@@ -2,7 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_access_token, verify_password
+from app.core.validators import validate_foreign_keys
 from app.db.repositories.users import UsersRepository
+from app.models.users import Role
 from app.schemas.users import ChangePasswordSchema, UserCreate, UserLogin
 
 
@@ -14,6 +16,7 @@ class UsersService:
         existing = await self.repo.get_by_email(user_in.email)
         if existing:
             raise HTTPException(status_code=400, detail="Email ya registrado")
+        await validate_foreign_keys(self.repo.db, {Role: user_in.role_id})
         return await self.repo.create(user_in)
 
     async def login(self, credentials: UserLogin):
@@ -35,6 +38,7 @@ class UsersService:
         user = await self.repo.get_by_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        await validate_foreign_keys(self.repo.db, {Role: user_in.role_id})
         return await self.repo.update(user_id, user_in)
 
     async def delete_user(self, user_id: int):

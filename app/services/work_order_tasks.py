@@ -1,7 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.validators import validate_foreign_keys
 from app.db.repositories.work_order_tasks import WorkOrderTasksRepository
+from app.models.users import User
+from app.models.work_orders import WorkOrder
+from app.models.work_orders_mechanic import WorkArea
 from app.schemas.work_order_tasks import WorkOrderTaskCreate
 
 
@@ -10,6 +14,14 @@ class WorkOrderTasksService:
         self.repo = WorkOrderTasksRepository(db)
 
     async def create_task(self, data: WorkOrderTaskCreate):
+        await validate_foreign_keys(
+            self.repo.db,
+            {
+                WorkOrder: data.work_order_id,
+                User: data.user_id,
+                WorkArea: data.area_id,
+            },
+        )
         return await self.repo.create(data)
 
     async def list_tasks(self, work_order_id: int):
