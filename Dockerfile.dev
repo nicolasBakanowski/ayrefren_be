@@ -4,11 +4,10 @@ WORKDIR /app
 
 RUN pip install --upgrade pip setuptools wheel
 
-COPY requirements.txt ./
-COPY requirements.dev.txt ./
+COPY . .
+
 RUN pip install --no-cache-dir -r requirements.dev.txt
 
-COPY . .
 
 RUN chmod +x scripts/start.sh
 
