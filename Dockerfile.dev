@@ -9,7 +9,5 @@ COPY . .
 
 RUN chmod +x scripts/start.sh
 
-EXPOSE 8000
-
 ENTRYPOINT ["sh", "scripts/start.sh"]
-CMD []
+CMD ["--reload"]

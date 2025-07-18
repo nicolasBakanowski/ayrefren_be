@@ -16,15 +16,29 @@ ayre_fren_ba/
 
 ## Ejecutar con Docker
 
-Para levantar la aplicación y aplicar las migraciones automáticamente:
+Copia el archivo `.env.example` a `.env` y ajusta las variables de conexión
+antes de levantar los contenedores.
+
+### Modo desarrollo
+
+Inicia el proyecto con recarga automática utilizando:
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
-El servicio `migrate` ejecuta `alembic upgrade head` y, una vez finalizado,
-inicia el servicio `web`.
+Este entorno monta el código como volumen y ejecuta la API con `--reload`.
 
+### Modo producción
+
+Para correr la aplicación en modo producción utiliza:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+El contenedor espera a que la base de datos esté disponible, aplica las
+migraciones, ejecuta `init_db.py` y luego inicia la API.
 
 Para generar nuevas migraciones manualmente:
 
