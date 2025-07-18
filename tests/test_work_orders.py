@@ -209,3 +209,63 @@ def test_assign_and_remove_reviewer(client):
     resp = http.delete(f"/work-orders/reviewer/{order_id}/{reviewer_id}")
     assert resp.status_code == 200
     assert resp.json()["reviewed_by"] is None
+
+
+def test_order_total_with_increments(client):
+    http, session_factory = client
+
+    async def seed_data():
+        async with session_factory() as session:
+            from app.models.clients import Client, ClientType
+            from app.models.parts import Part
+            from app.models.trucks import Truck
+            from app.models.users import Role, User
+            from app.models.work_order_parts import WorkOrderPart
+            from app.models.work_order_tasks import WorkOrderTask
+            from app.models.work_orders import WorkOrder, WorkOrderStatus
+            from app.models.work_orders_mechanic import WorkArea
+
+            cli = Client(type=ClientType.persona, name="Total")
+            role = Role(name="worker")
+            area = WorkArea(name="area")
+            session.add_all([cli, role, area])
+            await session.flush()
+            user = User(name="U", email="u@a.com", password="x", role_id=role.id)
+            session.add(user)
+            await session.flush()
+
+            truck = Truck(client_id=cli.id, license_plate="TOT111")
+            status = WorkOrderStatus(name="open")
+            part = Part(name="Bolt", description="", price=10)
+            session.add_all([truck, status, part])
+            await session.flush()
+
+            order = WorkOrder(truck_id=truck.id, status_id=status.id)
+            session.add(order)
+            await session.flush()
+
+            wop = WorkOrderPart(
+                work_order_id=order.id,
+                part_id=part.id,
+                quantity=2,
+                unit_price=10,
+                subtotal=20,
+                increment_per_unit=10,
+            )
+            task = WorkOrderTask(
+                work_order_id=order.id,
+                user_id=user.id,
+                area_id=area.id,
+                description="fix",
+                price=30,
+            )
+            session.add_all([wop, task])
+            await session.commit()
+            await session.refresh(order)
+            return order.id
+
+    order_id = asyncio.run(seed_data())
+    resp = http.get(f"/work-orders/{order_id}/total")
+    assert resp.status_code == 200
+    # 2 parts * 10 + 10% = 22; plus task 30 => 52
+    assert resp.json()["total"] == 52

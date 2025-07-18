@@ -10,8 +10,8 @@ from app.schemas.invoices import (
     InvoiceCreate,
     InvoiceOut,
     PaymentCreate,
-    PaymentOut,
     PaymentMethodOut,
+    PaymentOut,
 )
 from app.services.invoices import InvoicesService, PaymentsService
 
@@ -73,8 +73,7 @@ async def list_payment_methods(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    methods = await service.list_methods()
-    return [PaymentMethodOut.model_validate(m) for m in methods]
+    return await service.list_methods()
 
 
 @invoice_router.get("/payments/{invoice_id}/total")

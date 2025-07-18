@@ -1,9 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from decimal import Decimal
 
-from sqlalchemy import select, func
-from app.models.invoices import Invoice, Payment, BankCheck, PaymentMethod
-from app.schemas.invoices import InvoiceCreate, PaymentCreate, BankCheckIn
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.models.invoices import BankCheck, Invoice, Payment, PaymentMethod
+from app.schemas.invoices import BankCheckIn, InvoiceCreate, PaymentCreate
 
 
 class InvoicesRepository:
@@ -44,12 +46,21 @@ class PaymentsRepository:
         invoice.paid = (invoice.paid or Decimal("0")) + Decimal(str(data.amount))
 
         await self.db.commit()
-        await self.db.refresh(payment)
-        return payment
+        return await self.get(payment.id)
+
+    async def get(self, payment_id: int) -> Payment | None:
+        result = await self.db.execute(
+            select(Payment)
+            .options(selectinload(Payment.bank_checks))
+            .where(Payment.id == payment_id)
+        )
+        return result.scalar_one_or_none()
 
     async def list_by_invoice(self, invoice_id: int) -> list[Payment]:
         result = await self.db.execute(
-            select(Payment).where(Payment.invoice_id == invoice_id)
+            select(Payment)
+            .options(selectinload(Payment.bank_checks))
+            .where(Payment.invoice_id == invoice_id)
         )
         return result.scalars().all()
 
