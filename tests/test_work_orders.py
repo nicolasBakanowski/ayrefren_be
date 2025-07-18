@@ -258,6 +258,7 @@ def test_order_total_with_increments(client):
                 area_id=area.id,
                 description="fix",
                 price=30,
+                external=False,
             )
             session.add_all([wop, task])
             await session.commit()
