@@ -38,24 +38,13 @@ async def list_invoices(
     return await service.list()
 
 
-@invoice_router.get("/{invoice_id}", response_model=InvoiceOut)
-async def get_invoice(
-    invoice_id: int,
+@invoice_router.get("/payment-methods", response_model=list[PaymentMethodOut])
+async def list_payment_methods(
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
-    service = InvoicesService(db)
-    return await service.get(invoice_id)
-
-
-@invoice_router.get("/{invoice_id}/detail", response_model=InvoiceDetailOut)
-async def get_invoice_detail(
-    invoice_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
-):
-    service = InvoicesService(db)
-    return await service.detail(invoice_id)
+    service = PaymentsService(db)
+    return await service.list_methods()
 
 
 @invoice_router.post("/payments/", response_model=PaymentOut)
@@ -68,6 +57,16 @@ async def register_payment(
     return await service.create(payment_in)
 
 
+@invoice_router.get("/payments/{invoice_id}/total")
+async def total_paid(
+    invoice_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = PaymentsService(db)
+    return {"total": await service.total_by_invoice(invoice_id)}
+
+
 @invoice_router.get("/payments/{invoice_id}", response_model=List[PaymentOut])
 async def list_payments(
     invoice_id: int,
@@ -78,20 +77,21 @@ async def list_payments(
     return await service.list_by_invoice(invoice_id)
 
 
-@invoice_router.get("/payment-methods", response_model=list[PaymentMethodOut])
-async def list_payment_methods(
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
-):
-    service = PaymentsService(db)
-    return await service.list_methods()
-
-
-@invoice_router.get("/payments/{invoice_id}/total")
-async def total_paid(
+@invoice_router.get("/{invoice_id}/detail", response_model=InvoiceDetailOut)
+async def get_invoice_detail(
     invoice_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
-    service = PaymentsService(db)
-    return {"total": await service.total_by_invoice(invoice_id)}
+    service = InvoicesService(db)
+    return await service.detail(invoice_id)
+
+
+@invoice_router.get("/{invoice_id}", response_model=InvoiceOut)
+async def get_invoice(
+    invoice_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = InvoicesService(db)
+    return await service.get(invoice_id)

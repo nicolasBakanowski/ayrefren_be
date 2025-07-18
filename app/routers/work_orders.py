@@ -31,16 +31,6 @@ async def list_orders(
     return orders
 
 
-@work_orders_router.get("/{order_id}", response_model=WorkOrderOut)
-async def get_order(
-    order_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
-):
-    service = WorkOrdersService(db)
-    return await service.get_work_order(order_id)
-
-
 @work_orders_router.get("/{order_id}/total")
 async def order_total(
     order_id: int,
@@ -50,6 +40,16 @@ async def order_total(
     service = WorkOrdersService(db)
     total = await service.calculate_total(order_id)
     return {"total": total}
+
+
+@work_orders_router.get("/{order_id}", response_model=WorkOrderOut)
+async def get_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrdersService(db)
+    return await service.get_work_order(order_id)
 
 
 @work_orders_router.put("/{order_id}", response_model=WorkOrderOut)
