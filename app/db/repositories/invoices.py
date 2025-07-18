@@ -1,10 +1,12 @@
 from decimal import Decimal
+from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.invoices import BankCheck, Invoice, Payment, PaymentMethod
+from app.models.work_orders import WorkOrder
 from app.schemas.invoices import BankCheckIn, InvoiceCreate, PaymentCreate
 
 
@@ -55,7 +57,12 @@ class PaymentsRepository:
     async def get(self, payment_id: int) -> Payment | None:
         result = await self.db.execute(
             select(Payment)
-            .options(selectinload(Payment.bank_checks))
+            .options(
+                selectinload(Payment.bank_checks),
+                selectinload(Payment.invoice)
+                .selectinload(Invoice.work_order)
+                .selectinload(WorkOrder.reviewer),
+            )
             .where(Payment.id == payment_id)
         )
         return result.scalar_one_or_none()
@@ -79,3 +86,20 @@ class PaymentsRepository:
     async def list_methods(self) -> list[PaymentMethod]:
         result = await self.db.execute(select(PaymentMethod))
         return result.scalars().all()
+
+    async def get_bank_check(self, check_id: int) -> BankCheck | None:
+        result = await self.db.execute(
+            select(BankCheck).where(BankCheck.id == check_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def mark_check_as_exchanged(
+        self, check_id: int, exchange_date: datetime
+    ) -> BankCheck | None:
+        check = await self.db.get(BankCheck, check_id)
+        if not check:
+            return None
+        check.exchange_date = exchange_date
+        await self.db.commit()
+        await self.db.refresh(check)
+        return check

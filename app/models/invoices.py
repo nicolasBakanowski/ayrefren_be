@@ -84,6 +84,8 @@ class BankCheck(Base):
     check_number = Column(String(50), nullable=False)
     amount = Column(Numeric(10, 2), nullable=False)
     issued_at = Column(DateTime, default=datetime.utcnow)
+    due_date = Column(DateTime, nullable=True)
+    exchange_date = Column(DateTime, nullable=True)
     type = Column(SqlEnum(BankCheckType), nullable=False)
     payment_id = Column(Integer, ForeignKey("payments.id"), nullable=False)
     payment = relationship("Payment", back_populates="bank_checks")

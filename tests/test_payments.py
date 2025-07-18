@@ -126,3 +126,35 @@ def test_invoice_detail_surcharge(client):
     data = resp.json()
     assert data["total_without_surcharge"] == 100
     assert data["total_with_surcharge"] == 121
+
+
+def test_exchange_bank_check(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+    resp = http.post(
+        "/invoices/payments/",
+        json={
+            "invoice_id": invoice_id,
+            "method_id": method_id,
+            "amount": 100,
+            "bank_checks": [
+                {
+                    "bank_name": "BN",
+                    "check_number": "123",
+                    "amount": 100,
+                    "type": "physical",
+                    "due_date": "2023-01-01T00:00:00",
+                }
+            ],
+        },
+    )
+    assert resp.status_code == 200
+    check_id = resp.json()["bank_checks"][0]["id"]
+
+    resp = http.post(
+        f"/invoices/bank-checks/{check_id}/exchange",
+        json={"exchange_date": "2023-01-10T00:00:00"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["exchange_date"].startswith("2023-01-10")
