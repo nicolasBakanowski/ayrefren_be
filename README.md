@@ -16,29 +16,34 @@ ayre_fren_ba/
 
 ## Ejecutar con Docker
 
-Copia el archivo `.env.example` a `.env` y ajusta las variables de conexión
-antes de levantar los contenedores.
+Antes de iniciar crea tu archivo de entorno:
+
+```bash
+cp .env.example .env
+# edita los valores necesarios
+```
 
 ### Modo desarrollo
 
-Inicia el proyecto con recarga automática utilizando:
+Levanta los servicios con recarga automática usando:
 
 ```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-Este entorno monta el código como volumen y ejecuta la API con `--reload`.
+Este modo monta el código como volumen y ejecuta la API con `--reload`.
 
 ### Modo producción
 
-Para correr la aplicación en modo producción utiliza:
+Para un despliegue en producción ejecuta:
 
 ```bash
 docker compose -f docker-compose.prod.yml up --build
 ```
 
 El contenedor espera a que la base de datos esté disponible, aplica las
-migraciones, ejecuta `init_db.py` y luego inicia la API.
+migraciones, corre `init_db.py` (solo la primera vez) y finalmente inicia la
+API.
 
 Para generar nuevas migraciones manualmente:
 
