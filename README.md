@@ -45,10 +45,10 @@ El contenedor espera a que la base de datos esté disponible, aplica las
 migraciones, corre `init_db.py` (solo la primera vez) y finalmente inicia la
 API.
 
-Para generar nuevas migraciones manualmente:
+Para generar nuevas migraciones manualmente puedes usar el contenedor de desarrollo:
 
 ```bash
-alembic revision --autogenerate -m "mensaje"
+docker compose -f docker-compose.dev.yml run --rm web alembic revision --autogenerate -m "mensaje"
 ```
 
 ## Pruebas automatizadas
