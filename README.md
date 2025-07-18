@@ -78,7 +78,7 @@ Para obtener un reporte de cobertura:
 
 ```bash
 docker compose -f docker-compose.dev.yml run --rm web \
-  pytest --cov=app --cov-report=term-missing
+  pytest --cov=app --cov-report=html
 ```
 
 ## Validación de claves foráneas
