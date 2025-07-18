@@ -39,3 +39,4 @@ async def remove_reviewer(
     user_service = UsersService(db)
     reviewer = await user_service.get_user(reviewer_id)
     return await service.remove_reviewer(work_order_id, reviewer_id)
+

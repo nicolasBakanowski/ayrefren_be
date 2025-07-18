@@ -66,6 +66,30 @@ def test_create_order_success(client):
     assert data["status_id"] == status_id
 
 
+def test_list_orders(client):
+    http, session_factory = client
+
+    async def seed_orders():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="Lister")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="LIST111")
+            session.add(truck)
+            status = WorkOrderStatus(name="lst")
+            session.add(status)
+            await session.flush()
+            for _ in range(2):
+                order = WorkOrder(truck_id=truck.id, status_id=status.id)
+                session.add(order)
+            await session.commit()
+
+    asyncio.run(seed_orders())
+    resp = http.get("/orders/")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 2
+
+
 def test_get_order_success(client):
     http, session_factory = client
 
@@ -184,3 +208,4 @@ def test_assign_and_remove_reviewer(client):
     resp = http.delete(f"/work-orders/reviewer/{order_id}/{reviewer_id}")
     assert resp.status_code == 200
     assert resp.json()["reviewed_by"] is None
+

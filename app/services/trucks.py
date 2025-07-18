@@ -32,7 +32,8 @@ class TrucksService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Truck not found"
             )
-        return await self.repo.update(truck, truck_update)
+        data = truck_update.model_dump(exclude_unset=True)
+        return await self.repo.update(self.repo.db, truck, data)
 
     async def delete_truck(self, truck_id: int) -> None:
         truck = await self.repo.get_by_id(truck_id)
