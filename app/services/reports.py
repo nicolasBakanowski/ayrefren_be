@@ -28,7 +28,7 @@ class ReportsService:
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
-    async def billing_by_client(self):
+    async def billing_by_client(self, start_date: str | None = None, end_date: str | None = None):
         query = text(
             """
             SELECT
@@ -38,11 +38,14 @@ class ReportsService:
               SUM(i.paid) AS total_paid
             FROM invoices i
             JOIN clients c ON c.id = i.client_id
+            WHERE (:start IS NULL OR i.issued_at >= :start)
+              AND (:end IS NULL OR i.issued_at <= :end)
             GROUP BY c.id, c.name
             ORDER BY total_billed DESC;
         """
         )
-        result = await self.db.execute(query)
+        params = {"start": start_date, "end": end_date}
+        result = await self.db.execute(query, params)
         return [dict(row) for row in result.fetchall()]
 
     async def top_clients(self, limit: int = 5):
@@ -75,7 +78,12 @@ class ReportsService:
         result = await self.db.execute(query)
         return [dict(row) for row in result.fetchall()]
 
-    async def payments_by_method(self):
+    async def payments_by_method(
+        self,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        client_id: int | None = None,
+    ):
         query = text(
             """
             SELECT
@@ -83,11 +91,16 @@ class ReportsService:
               SUM(p.amount) AS total_received
             FROM payments p
             JOIN payment_methods pm ON pm.id = p.method_id
+            JOIN invoices i ON i.id = p.invoice_id
+            WHERE (:start IS NULL OR p.date >= :start)
+              AND (:end IS NULL OR p.date <= :end)
+              AND (:client IS NULL OR i.client_id = :client)
             GROUP BY pm.name
             ORDER BY total_received DESC;
         """
         )
-        result = await self.db.execute(query)
+        params = {"start": start_date, "end": end_date, "client": client_id}
+        result = await self.db.execute(query, params)
         return [dict(row) for row in result.fetchall()]
 
     async def expenses_monthly(self):

@@ -48,3 +48,9 @@ class PaymentsService:
 
     async def list_by_invoice(self, invoice_id: int):
         return await self.repo.list_by_invoice(invoice_id)
+
+    async def total_by_invoice(self, invoice_id: int) -> float:
+        return await self.repo.total_by_invoice(invoice_id)
+
+    async def list_methods(self):
+        return await self.repo.list_methods()

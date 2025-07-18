@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-
-from app.models.invoices import Invoice, Payment
-from app.schemas.invoices import InvoiceCreate, PaymentCreate
+from sqlalchemy import select, func
+from app.models.invoices import Invoice, Payment, BankCheck, PaymentMethod
+from app.schemas.invoices import InvoiceCreate, PaymentCreate, BankCheckIn
 
 
 class InvoicesRepository:
@@ -30,8 +29,13 @@ class PaymentsRepository:
         self.db = db
 
     async def create(self, data: PaymentCreate) -> Payment:
-        payment = Payment(**data.dict())
+        bank_checks_data = data.bank_checks or []
+        payment_dict = data.dict(exclude={"bank_checks"})
+        payment = Payment(**payment_dict)
         self.db.add(payment)
+        await self.db.flush()
+        for bc in bank_checks_data:
+            self.db.add(BankCheck(payment_id=payment.id, **bc))
 
         # Actualizar total pagado en la factura
         invoice = await self.db.get(Invoice, data.invoice_id)
@@ -45,4 +49,16 @@ class PaymentsRepository:
         result = await self.db.execute(
             select(Payment).where(Payment.invoice_id == invoice_id)
         )
+        return result.scalars().all()
+
+    async def total_by_invoice(self, invoice_id: int) -> float:
+        result = await self.db.execute(
+            select(func.coalesce(func.sum(Payment.amount), 0)).where(
+                Payment.invoice_id == invoice_id
+            )
+        )
+        return float(result.scalar_one())
+
+    async def list_methods(self) -> list[PaymentMethod]:
+        result = await self.db.execute(select(PaymentMethod))
         return result.scalars().all()
