@@ -11,7 +11,7 @@ def test_create_invoice_invalid_order(client):
         async with session_factory() as session:
             client_obj = Client(type=ClientType.persona, name="Test")
             status = InvoiceStatus(name="pending")
-            inv_type = InvoiceType(name="type1")
+            inv_type = InvoiceType(name="type1", surcharge=0)
             session.add_all([client_obj, status, inv_type])
             await session.commit()
             await session.refresh(client_obj)

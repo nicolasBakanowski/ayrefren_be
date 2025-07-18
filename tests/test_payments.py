@@ -25,7 +25,7 @@ def _seed_invoice(session_factory):
 
             order = WorkOrder(truck_id=truck.id, status_id=status.id)
             inv_status = InvoiceStatus(name="pending")
-            inv_type = InvoiceType(name="A")
+            inv_type = InvoiceType(name="A", surcharge=21)
             session.add_all([order, inv_status, inv_type])
             await session.flush()
 
@@ -120,4 +120,15 @@ def test_partial_payments_different_methods(client):
     resp = http.get(f"/invoices/payments/{invoice_id}/total")
     assert resp.status_code == 200
     assert resp.json()["total"] == 100
+
+
+def test_invoice_detail_surcharge(client):
+    http, session_factory = client
+    invoice_id, _ = _seed_invoice(session_factory)
+
+    resp = http.get(f"/invoices/{invoice_id}/detail")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total_without_surcharge"] == 100
+    assert data["total_with_surcharge"] == 121
 

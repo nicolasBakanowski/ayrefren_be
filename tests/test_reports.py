@@ -30,7 +30,7 @@ def _seed_data(session_factory):
             order1 = WorkOrder(truck_id=truck1.id, status_id=status.id)
             order2 = WorkOrder(truck_id=truck2.id, status_id=status.id)
             inv_status = InvoiceStatus(name="pending")
-            inv_type = InvoiceType(name="A")
+            inv_type = InvoiceType(name="A", surcharge=21)
             session.add_all([order1, order2, inv_status, inv_type])
             await session.flush()
 

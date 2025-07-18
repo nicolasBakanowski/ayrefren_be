@@ -20,7 +20,9 @@ class InvoicesRepository:
         return invoice
 
     async def get(self, id: int) -> Invoice | None:
-        result = await self.db.execute(select(Invoice).where(Invoice.id == id))
+        result = await self.db.execute(
+            select(Invoice).options(selectinload(Invoice.invoice_type)).where(Invoice.id == id)
+        )
         return result.scalar_one_or_none()
 
     async def list(self) -> list[Invoice]:

@@ -6,7 +6,21 @@ from app.db.repositories.invoices import InvoicesRepository, PaymentsRepository
 from app.models.clients import Client
 from app.models.invoices import Invoice, InvoiceStatus, InvoiceType, PaymentMethod
 from app.models.work_orders import WorkOrder
-from app.schemas.invoices import InvoiceCreate, PaymentCreate
+from app.schemas.invoices import InvoiceCreate, PaymentCreate, InvoiceOut
+
+
+def _invoice_with_surcharge(invoice: Invoice) -> dict:
+    surcharge = float(invoice.invoice_type.surcharge or 0)
+    base_total = float(invoice.total)
+    data = InvoiceOut.model_validate(invoice).model_dump()
+    data.update(
+        {
+            "surcharge": surcharge,
+            "total_without_surcharge": base_total,
+            "total_with_surcharge": base_total * (1 + surcharge / 100),
+        }
+    )
+    return data
 
 
 class InvoicesService:
@@ -30,6 +44,10 @@ class InvoicesService:
         if not invoice:
             raise HTTPException(404, detail="Factura no encontrada")
         return invoice
+
+    async def detail(self, invoice_id: int):
+        invoice = await self.get(invoice_id)
+        return _invoice_with_surcharge(invoice)
 
     async def list(self):
         return await self.repo.list()

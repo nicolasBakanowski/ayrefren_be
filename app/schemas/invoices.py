@@ -65,3 +65,9 @@ class PaymentMethodOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InvoiceDetailOut(InvoiceOut):
+    surcharge: float
+    total_without_surcharge: float
+    total_with_surcharge: float

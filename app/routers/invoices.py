@@ -9,6 +9,7 @@ from app.core.dependencies import roles_allowed
 from app.schemas.invoices import (
     InvoiceCreate,
     InvoiceOut,
+    InvoiceDetailOut,
     PaymentCreate,
     PaymentMethodOut,
     PaymentOut,
@@ -45,6 +46,16 @@ async def get_invoice(
 ):
     service = InvoicesService(db)
     return await service.get(invoice_id)
+
+
+@invoice_router.get("/{invoice_id}/detail", response_model=InvoiceDetailOut)
+async def get_invoice_detail(
+    invoice_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = InvoicesService(db)
+    return await service.detail(invoice_id)
 
 
 @invoice_router.post("/payments/", response_model=PaymentOut)
