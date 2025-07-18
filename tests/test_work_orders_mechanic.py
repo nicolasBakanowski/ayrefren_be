@@ -16,17 +16,19 @@ def test_list_and_remove_mechanic(client):
     async def seed_data():
         async with session_factory() as session:
             from app.models.clients import Client, ClientType
+            from app.models.trucks import Truck
             from app.models.users import Role, User
             from app.models.work_orders import WorkOrder, WorkOrderStatus
             from app.models.work_orders_mechanic import WorkArea
-            from app.models.trucks import Truck
 
             role = Role(name="mech")
             area = WorkArea(name="area")
             cli = Client(type=ClientType.persona, name="Owner")
             session.add_all([role, area, cli])
             await session.flush()
-            user = User(name="Mech", email="m@example.com", password="x", role_id=role.id)
+            user = User(
+                name="Mech", email="m@example.com", password="x", role_id=role.id
+            )
             session.add(user)
             truck = Truck(client_id=cli.id, license_plate="MECH1")
             session.add(truck)
@@ -56,4 +58,3 @@ def test_list_and_remove_mechanic(client):
     resp = http.delete(f"/work-orders/mechanics/{mech_id}")
     assert resp.status_code == 200
     assert resp.json()["detail"] == "Mecánico eliminado"
-

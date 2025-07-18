@@ -41,7 +41,6 @@ class UsersRepository:
         result = await self.db.execute(stmt)
         return result.scalars().all()
 
-
     async def update(self, user_id: int, user_in: UserCreate) -> User:
         user = await self.get_by_id(user_id)
         if not user:

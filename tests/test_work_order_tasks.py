@@ -5,7 +5,13 @@ def test_add_task_invalid_fk(client):
     http, _ = client
     resp = http.post(
         "/work-orders/tasks/",
-        json={"work_order_id": 999, "user_id": 999, "area_id": 999, "description": "", "price": 0},
+        json={
+            "work_order_id": 999,
+            "user_id": 999,
+            "area_id": 999,
+            "description": "",
+            "price": 0,
+        },
     )
     assert resp.status_code == 404
 
@@ -16,17 +22,19 @@ def test_task_flow(client):
     async def seed_data():
         async with session_factory() as session:
             from app.models.clients import Client, ClientType
+            from app.models.trucks import Truck
             from app.models.users import Role, User
             from app.models.work_orders import WorkOrder, WorkOrderStatus
             from app.models.work_orders_mechanic import WorkArea
-            from app.models.trucks import Truck
 
             role = Role(name="tasker")
             area = WorkArea(name="area")
             cli = Client(type=ClientType.persona, name="Owner")
             session.add_all([role, area, cli])
             await session.flush()
-            user = User(name="Worker", email="w@example.com", password="x", role_id=role.id)
+            user = User(
+                name="Worker", email="w@example.com", password="x", role_id=role.id
+            )
             session.add(user)
             truck = Truck(client_id=cli.id, license_plate="TASK1")
             session.add(truck)

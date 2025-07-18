@@ -1,5 +1,6 @@
-
 import asyncio
+
+
 def test_create_truck_invalid_client(client):
     http, _ = client
     resp = http.post(
@@ -60,4 +61,3 @@ def test_truck_crud_flow(client):
 
     resp = http.delete(f"/trucks/{truck_id}")
     assert resp.status_code == 204
-

@@ -1,4 +1,5 @@
 import asyncio
+
 from app.models.users import Role
 
 
@@ -54,7 +55,7 @@ def test_login_success(client):
             return http.post(
                 "/users/register",
                 json={
-                    "name": "Log", 
+                    "name": "Log",
                     "email": "log@example.com",
                     "password": "pass",
                     "role_id": role.id,

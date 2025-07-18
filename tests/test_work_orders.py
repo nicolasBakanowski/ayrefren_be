@@ -1,4 +1,5 @@
 import asyncio
+
 from app.models.clients import Client, ClientType
 from app.models.trucks import Truck
 from app.models.users import Role, User
@@ -208,4 +209,3 @@ def test_assign_and_remove_reviewer(client):
     resp = http.delete(f"/work-orders/reviewer/{order_id}/{reviewer_id}")
     assert resp.status_code == 200
     assert resp.json()["reviewed_by"] is None
-

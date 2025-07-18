@@ -1,5 +1,3 @@
-import asyncio
-
 def test_parts_crud_flow(client):
     http, _ = client
     resp = http.post(
@@ -28,4 +26,3 @@ def test_parts_crud_flow(client):
 
     resp = http.get(f"/parts/{part_id}")
     assert resp.status_code == 404
-

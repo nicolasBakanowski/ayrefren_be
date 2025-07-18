@@ -1,8 +1,9 @@
 import asyncio
+
 import pytest
 from fastapi import HTTPException
 
-from app.core.validators import get_or_404, exists_or_404, validate_foreign_keys
+from app.core.validators import exists_or_404, get_or_404, validate_foreign_keys
 from app.models.clients import Client, ClientType
 from app.models.users import Role
 

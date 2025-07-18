@@ -1,9 +1,10 @@
 import asyncio
-from app.models.users import Role
-from app.services.auth import AuthService
-from app.schemas.users import UserCreate
-from app.db.repositories.users import UsersRepository
+
 from app.core.security import verify_password
+from app.db.repositories.users import UsersRepository
+from app.models.users import Role
+from app.schemas.users import UserCreate
+from app.services.auth import AuthService
 
 
 def test_authenticate_and_login_token(client):
@@ -16,7 +17,14 @@ def test_authenticate_and_login_token(client):
             await session.commit()
             await session.refresh(role)
             repo = UsersRepository(session)
-            user = await repo.create(UserCreate(name="Auth", email="auth@example.com", password="secret", role_id=role.id))
+            user = await repo.create(
+                UserCreate(
+                    name="Auth",
+                    email="auth@example.com",
+                    password="secret",
+                    role_id=role.id,
+                )
+            )
             return user.email
 
     email = asyncio.run(seed_user())
@@ -32,4 +40,3 @@ def test_authenticate_and_login_token(client):
     assert user_email == email
     assert valid_pw
     assert isinstance(token, str) and token
-

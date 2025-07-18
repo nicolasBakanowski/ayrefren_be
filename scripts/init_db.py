@@ -50,12 +50,7 @@ async def init():
         await session.commit()
 
         # Insertar los estados de las órdenes de trabajo
-        statuses = {
-            1: "Pendiente",
-            2: "En progreso",
-            3: "Finalizado",
-            4: "Emitido"
-        }
+        statuses = {1: "Pendiente", 2: "En progreso", 3: "Finalizado", 4: "Emitido"}
         await create_data(statuses, session, WorkOrderStatus)
 
         # Insertar tipos de facturas
