@@ -57,5 +57,4 @@ async def delete_part(
     current_user: str = Depends(roles_allowed(ADMIN)),
 ):
     service = PartsService(db)
-    await service.delete_part(part_id)
-    return {"detail": "Part deleted"}
+    return await service.delete_part(part_id)

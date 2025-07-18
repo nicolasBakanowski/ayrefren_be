@@ -5,6 +5,9 @@ from sqlalchemy.future import select
 
 
 async def get_or_404(db: AsyncSession, model, obj_id: int, name: str = "Recurso"):
+    if obj_id <= 0:
+        raise HTTPException(status_code=404, detail=f"{name} con ID {obj_id} no existe")
+
     result = await db.execute(select(model).where(model.id == obj_id))
     obj = result.scalar_one_or_none()
     if not obj:
@@ -13,6 +16,11 @@ async def get_or_404(db: AsyncSession, model, obj_id: int, name: str = "Recurso"
 
 
 async def exists_or_404(db: AsyncSession, model, obj_id: int):
+    if obj_id <= 0:
+        raise HTTPException(
+            status_code=404, detail=f"{model.__name__} con id {obj_id} no existe"
+        )
+
     result = await db.execute(
         select(func.count()).select_from(model).where(model.id == obj_id)
     )

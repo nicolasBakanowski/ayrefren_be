@@ -7,14 +7,15 @@ from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # pragma no cover
 
-from app.core.dependencies import get_current_user
-from app.core.database import Base, get_db
-from app.models.users import Role, User
-from app.main import app
+from app.core.database import Base, get_db  # noqa: E402
+from app.core.dependencies import get_current_user  # noqa: E402
+from app.main import app  # noqa: E402
+from app.models.users import Role, User  # noqa: E402
 
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
 
 @pytest.fixture(scope="function")
 def client():

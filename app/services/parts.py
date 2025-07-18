@@ -28,6 +28,7 @@ class PartsService:
         part = await self.get_part(part_id)
         return await self.repo.update(part, data)
 
-    async def delete_part(self, part_id: int) -> None:
+    async def delete_part(self, part_id: int) -> dict:
         part = await self.get_part(part_id)
         await self.repo.delete(part)
+        return {"detail": "Part deleted"}

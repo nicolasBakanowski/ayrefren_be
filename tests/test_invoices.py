@@ -1,10 +1,12 @@
 import asyncio
+
 from app.models.clients import Client, ClientType
 from app.models.invoices import InvoiceStatus, InvoiceType
 
 
 def test_create_invoice_invalid_order(client):
     http, session_factory = client
+
     async def setup_refs():
         async with session_factory() as session:
             client_obj = Client(type=ClientType.persona, name="Test")

@@ -4,9 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.validators import validate_foreign_keys
 from app.db.repositories.invoices import InvoicesRepository, PaymentsRepository
 from app.models.clients import Client
-from app.models.invoices import InvoiceStatus, InvoiceType
-from app.models.invoices import Invoice
-from app.models.invoices import PaymentMethod
+from app.models.invoices import Invoice, InvoiceStatus, InvoiceType, PaymentMethod
 from app.models.work_orders import WorkOrder
 from app.schemas.invoices import InvoiceCreate, PaymentCreate
 

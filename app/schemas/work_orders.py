@@ -28,7 +28,6 @@ class WorkOrderUpdate(BaseModel):
     reviewed_by: Optional[int] = None
 
 
-
 class WorkOrderStatusOut(BaseModel):
     id: int
     name: str

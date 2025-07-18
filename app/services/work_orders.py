@@ -34,12 +34,8 @@ class WorkOrdersService:
         return await self.repo.list()
 
     async def update_work_order(self, work_order_id: int, data: WorkOrderUpdate):
-        await validate_foreign_keys(
-            self.repo.db, {WorkOrderStatus: data.status_id}
-        )
-        updated = await self.repo.update(
-            work_order_id, data.dict(exclude_unset=True)
-        )
+        await validate_foreign_keys(self.repo.db, {WorkOrderStatus: data.status_id})
+        updated = await self.repo.update(work_order_id, data.dict(exclude_unset=True))
         if not updated:
             raise HTTPException(status_code=404, detail="Orden no encontrada")
         return await self.repo.get(work_order_id)
