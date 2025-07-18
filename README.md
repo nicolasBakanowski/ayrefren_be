@@ -10,7 +10,8 @@ ayre_fren_ba/
 │   └── main.py           # App FastAPI
 ├── alembic/              # Migraciones de base de datos
 ├── .env                  # Variables de entorno
-├── requirements.txt
+├── requirements.txt       # Dependencias de producción
+├── requirements.dev.txt   # Extras para desarrollo y pruebas
 └── README.md
 ```
 
@@ -62,7 +63,7 @@ memoria. Esto permite verificar cada router de forma aislada.
 Para ejecutarla instale las dependencias y luego corra `pytest`:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.dev.txt
 pytest -q
 ```
 
