@@ -80,10 +80,3 @@ Para obtener un reporte de cobertura:
 docker compose -f docker-compose.dev.yml run --rm web \
   pytest --cov=app --cov-report=html
 ```
-
-## Validación de claves foráneas
-
-Todos los servicios emplean la función `validate_foreign_keys` ubicada en
-`app/core/validators.py` para asegurar que los identificadores referenciados
-existen antes de crear o actualizar datos. Si alguna clave no es válida, el
-endpoint responde con un `404` en lugar de un error 500.
