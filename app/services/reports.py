@@ -26,7 +26,7 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def billing_by_client(self, start_date: str | None = None, end_date: str | None = None):
         query = text(
@@ -46,7 +46,7 @@ class ReportsService:
         )
         params = {"start": start_date, "end": end_date}
         result = await self.db.execute(query, params)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def top_clients(self, limit: int = 5):
         query = text(
@@ -62,7 +62,7 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query, {"limit": limit})
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def income_monthly(self):
         query = text(
@@ -76,7 +76,7 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def payments_by_method(
         self,
@@ -101,7 +101,7 @@ class ReportsService:
         )
         params = {"start": start_date, "end": end_date, "client": client_id}
         result = await self.db.execute(query, params)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def expenses_monthly(self):
         query = text(
@@ -115,7 +115,7 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def expenses_by_type(self):
         query = text(
@@ -130,7 +130,7 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]
 
     async def monthly_balance(self):
         query = text(
@@ -156,4 +156,4 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query)
-        return [dict(row) for row in result.fetchall()]
+        return [dict(row) for row in result.mappings().all()]

@@ -67,13 +67,14 @@ async def list_payments(
     return await service.list_by_invoice(invoice_id)
 
 
-@invoice_router.get("/payment-methods", response_model=List[PaymentMethodOut])
+@invoice_router.get("/payment-methods", response_model=list[PaymentMethodOut])
 async def list_payment_methods(
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    return await service.list_methods()
+    methods = await service.list_methods()
+    return [PaymentMethodOut.model_validate(m) for m in methods]
 
 
 @invoice_router.get("/payments/{invoice_id}/total")
