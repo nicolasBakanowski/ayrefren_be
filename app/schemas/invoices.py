@@ -50,11 +50,13 @@ class BankCheckIn(BaseModel):
     check_number: str
     amount: float
     type: BankCheckType
+    due_date: Optional[datetime] = None
 
 
 class BankCheckOut(BankCheckIn):
     id: int
     issued_at: datetime
+    exchange_date: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -66,6 +68,10 @@ class PaymentMethodOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BankCheckExchange(BaseModel):
+    exchange_date: datetime
 
 
 class InvoiceDetailOut(InvoiceOut):

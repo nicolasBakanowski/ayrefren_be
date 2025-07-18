@@ -4,9 +4,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.validators import validate_foreign_keys
 from app.db.repositories.invoices import InvoicesRepository, PaymentsRepository
 from app.models.clients import Client
-from app.models.invoices import Invoice, InvoiceStatus, InvoiceType, PaymentMethod
+from app.models.invoices import (
+    BankCheck,
+    Invoice,
+    InvoiceStatus,
+    InvoiceType,
+    PaymentMethod,
+)
 from app.models.work_orders import WorkOrder
-from app.schemas.invoices import InvoiceCreate, InvoiceOut, PaymentCreate
+from app.schemas.invoices import (
+    BankCheckExchange,
+    InvoiceCreate,
+    InvoiceOut,
+    PaymentCreate,
+)
+from app.services.notifications import NotificationService
 
 
 def _invoice_with_surcharge(invoice: Invoice) -> dict:
@@ -56,13 +68,18 @@ class InvoicesService:
 class PaymentsService:
     def __init__(self, db: AsyncSession):
         self.repo = PaymentsRepository(db)
+        self.notifier = NotificationService(db)
 
     async def create(self, data: PaymentCreate):
         await validate_foreign_keys(
             self.repo.db,
             {Invoice: data.invoice_id, PaymentMethod: data.method_id},
         )
-        return await self.repo.create(data)
+        payment = await self.repo.create(data)
+        for check in payment.bank_checks:
+            if check.due_date:
+                await self.notifier.notify_due_check(check)
+        return payment
 
     async def list_by_invoice(self, invoice_id: int):
         return await self.repo.list_by_invoice(invoice_id)
@@ -72,3 +89,14 @@ class PaymentsService:
 
     async def list_methods(self):
         return await self.repo.list_methods()
+
+
+class BankChecksService:
+    def __init__(self, db: AsyncSession):
+        self.repo = PaymentsRepository(db)
+
+    async def mark_as_exchanged(self, check_id: int, data: BankCheckExchange) -> BankCheck:
+        check = await self.repo.mark_check_as_exchanged(check_id, data.exchange_date)
+        if not check:
+            raise HTTPException(status_code=404, detail="Cheque no encontrado")
+        return check
