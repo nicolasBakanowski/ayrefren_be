@@ -60,7 +60,9 @@ async def init():
             3: {"name": "Remito", "surcharge": 0},
         }
         for key, data in invoice_types.items():
-            result = await session.execute(select(InvoiceType).where(InvoiceType.id == key))
+            result = await session.execute(
+                select(InvoiceType).where(InvoiceType.id == key)
+            )
             existing = result.scalars().first()
             if not existing:
                 session.add(InvoiceType(id=key, **data))

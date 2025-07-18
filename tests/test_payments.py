@@ -1,14 +1,9 @@
 import asyncio
 
 from app.models.clients import Client, ClientType
+from app.models.invoices import Invoice, InvoiceStatus, InvoiceType, PaymentMethod
 from app.models.trucks import Truck
-from app.models.work_orders import WorkOrderStatus, WorkOrder
-from app.models.invoices import (
-    Invoice,
-    InvoiceStatus,
-    InvoiceType,
-    PaymentMethod,
-)
+from app.models.work_orders import WorkOrder, WorkOrderStatus
 
 
 def _seed_invoice(session_factory):
@@ -131,4 +126,3 @@ def test_invoice_detail_surcharge(client):
     data = resp.json()
     assert data["total_without_surcharge"] == 100
     assert data["total_with_surcharge"] == 121
-

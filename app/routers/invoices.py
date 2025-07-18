@@ -8,8 +8,8 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.schemas.invoices import (
     InvoiceCreate,
-    InvoiceOut,
     InvoiceDetailOut,
+    InvoiceOut,
     PaymentCreate,
     PaymentMethodOut,
     PaymentOut,

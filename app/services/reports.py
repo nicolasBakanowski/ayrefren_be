@@ -28,7 +28,9 @@ class ReportsService:
         result = await self.db.execute(query)
         return [dict(row) for row in result.mappings().all()]
 
-    async def billing_by_client(self, start_date: str | None = None, end_date: str | None = None):
+    async def billing_by_client(
+        self, start_date: str | None = None, end_date: str | None = None
+    ):
         query = text(
             """
             SELECT

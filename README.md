@@ -88,4 +88,3 @@ La API expone el endpoint `GET /orders/{id}/total` que suma el costo de las tare
 ## Detalle de facturas con recargo
 
 Cuando un tipo de factura define un recargo porcentual, el endpoint `GET /invoices/{id}/detail` devuelve el total original junto con el total con dicho recargo aplicado. Así el frontend puede mostrar ambos valores y elegir cuál cobrar.
-

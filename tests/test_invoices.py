@@ -1,7 +1,7 @@
 import asyncio
 
 from app.models.clients import Client, ClientType
-from app.models.invoices import InvoiceStatus, InvoiceType
+from app.models.invoices import Invoice, InvoiceStatus, InvoiceType
 
 
 def test_create_invoice_invalid_order(client):
@@ -48,7 +48,7 @@ def test_invoice_detail_with_surcharge(client):
             await session.flush()
 
             from app.models.trucks import Truck
-            from app.models.work_orders import WorkOrderStatus, WorkOrder
+            from app.models.work_orders import WorkOrder, WorkOrderStatus
 
             truck = Truck(client_id=client_obj.id, license_plate="DET111")
             wo_status = WorkOrderStatus(name="open")

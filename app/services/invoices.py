@@ -6,7 +6,7 @@ from app.db.repositories.invoices import InvoicesRepository, PaymentsRepository
 from app.models.clients import Client
 from app.models.invoices import Invoice, InvoiceStatus, InvoiceType, PaymentMethod
 from app.models.work_orders import WorkOrder
-from app.schemas.invoices import InvoiceCreate, PaymentCreate, InvoiceOut
+from app.schemas.invoices import InvoiceCreate, InvoiceOut, PaymentCreate
 
 
 def _invoice_with_surcharge(invoice: Invoice) -> dict:
