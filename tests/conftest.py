@@ -1,8 +1,13 @@
 import asyncio
+import sys
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.core.dependencies import get_current_user
 from app.core.database import Base, get_db
