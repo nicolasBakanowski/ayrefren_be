@@ -20,7 +20,9 @@ Antes de iniciar crea tu archivo de entorno:
 
 ```bash
 cp .env.example .env
-# edita los valores necesarios
+# edita los valores necesarios. Asegúrate de que
+# `DATABASE_URL` apunte al host `db`, que es el nombre del
+# contenedor de Postgres utilizado en Docker.
 ```
 
 ### Modo desarrollo
