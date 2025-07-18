@@ -9,6 +9,7 @@ class WorkOrderTaskBase(BaseModel):
     description: str
     area_id: int
     price: float
+    external: bool = False
 
 
 class WorkOrderTaskCreate(WorkOrderTaskBase):

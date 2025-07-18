@@ -62,3 +62,13 @@ class WorkOrdersService:
             )
         await self.repo.update(work_order_id, {"reviewed_by": None})
         return await self.repo.get(work_order_id)
+
+    async def calculate_total(self, work_order_id: int) -> float:
+        order = await self.get_work_order(work_order_id)
+        parts_total = 0.0
+        for p in order.parts:
+            inc = float(p.increment_per_unit or 0)
+            parts_total += float(p.unit_price) * p.quantity * (1 + inc / 100)
+
+        tasks_total = sum(float(t.price) for t in order.tasks)
+        return parts_total + tasks_total

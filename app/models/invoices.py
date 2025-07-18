@@ -19,6 +19,7 @@ class InvoiceType(Base):
     __tablename__ = "invoice_types"
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
+    surcharge = Column(Numeric(5, 2), default=0)
 
 
 class Invoice(Base):

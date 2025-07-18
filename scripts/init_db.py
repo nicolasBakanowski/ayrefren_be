@@ -55,11 +55,18 @@ async def init():
 
         # Insertar tipos de facturas
         invoice_types = {
-            1: "Factura A",
-            2: "Factura C",
-            3: "Remito",
+            1: {"name": "Factura A", "surcharge": 21},
+            2: {"name": "Factura C", "surcharge": 0},
+            3: {"name": "Remito", "surcharge": 0},
         }
-        await create_data(invoice_types, session, InvoiceType)
+        for key, data in invoice_types.items():
+            result = await session.execute(
+                select(InvoiceType).where(InvoiceType.id == key)
+            )
+            existing = result.scalars().first()
+            if not existing:
+                session.add(InvoiceType(id=key, **data))
+        await session.commit()
 
         # Insertar estados de las facturas
         invoice_statuses = {

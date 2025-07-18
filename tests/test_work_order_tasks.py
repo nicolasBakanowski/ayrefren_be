@@ -11,6 +11,7 @@ def test_add_task_invalid_fk(client):
             "area_id": 999,
             "description": "",
             "price": 0,
+            "external": False,
         },
     )
     assert resp.status_code == 404
@@ -58,6 +59,7 @@ def test_task_flow(client):
             "area_id": area_id,
             "description": "Fix",
             "price": 10.0,
+            "external": True,
         },
     )
     assert resp.status_code == 200

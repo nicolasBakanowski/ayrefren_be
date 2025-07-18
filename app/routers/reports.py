@@ -20,11 +20,13 @@ async def report_profit_by_order(
 
 @reports_router.get("/billing-by-client")
 async def report_billing_by_client(
+    start_date: str | None = None,
+    end_date: str | None = None,
     db: AsyncSession = Depends(get_db),
     current_user=Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = ReportsService(db)
-    return await service.billing_by_client()
+    return await service.billing_by_client(start_date, end_date)
 
 
 @reports_router.get("/top-clients")
@@ -44,11 +46,14 @@ async def report_income_monthly(
 
 @reports_router.get("/payments-by-method")
 async def report_payments_by_method(
+    start_date: str | None = None,
+    end_date: str | None = None,
+    client_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user=Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = ReportsService(db)
-    return await service.payments_by_method()
+    return await service.payments_by_method(start_date, end_date, client_id)
 
 
 @reports_router.get("/expenses-monthly")
