@@ -64,6 +64,20 @@ pip install -r requirements.txt
 pytest -q
 ```
 
+Si prefieres ejecutar las pruebas dentro de un contenedor (sin instalar nada
+localmente) puedes usar el servicio de desarrollo:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm web pytest -q
+```
+
+Para obtener un reporte de cobertura:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm web \
+  pytest --cov=app --cov-report=term-missing
+```
+
 ## Validación de claves foráneas
 
 Todos los servicios emplean la función `validate_foreign_keys` ubicada en
