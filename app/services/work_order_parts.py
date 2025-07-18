@@ -1,7 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.validators import validate_foreign_keys
 from app.db.repositories.work_order_parts import WorkOrderPartsRepository
+from app.models.parts import Part
+from app.models.work_orders import WorkOrder
 from app.schemas.work_order_parts import WorkOrderPartCreate
 
 
@@ -10,6 +13,10 @@ class WorkOrderPartsService:
         self.repo = WorkOrderPartsRepository(db)
 
     async def create_part(self, data: WorkOrderPartCreate):
+        await validate_foreign_keys(
+            self.repo.db,
+            {WorkOrder: data.work_order_id, Part: data.part_id},
+        )
         return await self.repo.create(data)
 
     async def list_parts(self, work_order_id: int):

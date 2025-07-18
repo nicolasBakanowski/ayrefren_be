@@ -3,7 +3,9 @@ from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.validators import validate_foreign_keys
 from app.db.repositories.trucks import TrucksRepository
+from app.models.clients import Client
 from app.models.trucks import Truck
 from app.schemas.trucks import TruckCreate, TruckUpdate
 
@@ -21,6 +23,7 @@ class TrucksService:
         return truck
 
     async def create_truck(self, truck_create: TruckCreate) -> Truck:
+        await validate_foreign_keys(self.repo.db, {Client: truck_create.client_id})
         return await self.repo.create(truck_create)
 
     async def update_truck(self, truck_id: int, truck_update: TruckUpdate) -> Truck:
