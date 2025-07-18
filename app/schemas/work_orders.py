@@ -14,6 +14,7 @@ from .work_orders_mechanic import WorkOrderMechanicOut
 class WorkOrderBase(BaseModel):
     truck_id: int
     status_id: int
+    reviewed_by: Optional[int] = None
     notes: Optional[str] = None
 
 
@@ -22,14 +23,16 @@ class WorkOrderCreate(WorkOrderBase):
 
 
 class WorkOrderUpdate(BaseModel):
-    status_id: Optional[int]
-    notes: Optional[str]
+    status_id: Optional[int] = None
+    notes: Optional[str] = None
+    reviewed_by: Optional[int] = None
+
 
 
 class WorkOrderStatusOut(BaseModel):
     id: int
     name: str
-    description: Optional[str] = None
+    notes: Optional[str] = None
 
     class Config:
         from_attributes = True

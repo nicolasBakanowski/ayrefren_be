@@ -8,7 +8,7 @@ def test_create_order_invalid_truck(client):
     http, _ = client
     resp = http.post(
         "/orders/",
-        json={"truck_id": 999, "status_id": 999},
+        json={"truck_id": 999, "status_id": 999, "notes": "Test order"},
     )
     assert resp.status_code == 404
 
