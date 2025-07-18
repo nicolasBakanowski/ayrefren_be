@@ -16,20 +16,41 @@ ayre_fren_ba/
 
 ## Ejecutar con Docker
 
-Para levantar la aplicación y aplicar las migraciones automáticamente:
+Antes de iniciar crea tu archivo de entorno:
 
 ```bash
-docker compose up --build
+cp .env.example .env
+# edita los valores necesarios. Asegúrate de que
+# `DATABASE_URL` apunte al host `db`, que es el nombre del
+# contenedor de Postgres utilizado en Docker.
 ```
 
-El servicio `migrate` ejecuta `alembic upgrade head` y, una vez finalizado,
-inicia el servicio `web`.
+### Modo desarrollo
 
-
-Para generar nuevas migraciones manualmente:
+Levanta los servicios con recarga automática usando:
 
 ```bash
-alembic revision --autogenerate -m "mensaje"
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Este modo monta el código como volumen y ejecuta la API con `--reload`.
+
+### Modo producción
+
+Para un despliegue en producción ejecuta:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+El contenedor espera a que la base de datos esté disponible, aplica las
+migraciones, corre `init_db.py` (solo la primera vez) y finalmente inicia la
+API.
+
+Para generar nuevas migraciones manualmente puedes usar el contenedor de desarrollo:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm web alembic revision --autogenerate -m "mensaje"
 ```
 
 ## Pruebas automatizadas
@@ -43,6 +64,20 @@ Para ejecutarla instale las dependencias y luego corra `pytest`:
 ```bash
 pip install -r requirements.txt
 pytest -q
+```
+
+Si prefieres ejecutar las pruebas dentro de un contenedor (sin instalar nada
+localmente) puedes usar el servicio de desarrollo:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm web pytest -q
+```
+
+Para obtener un reporte de cobertura:
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm web \
+  pytest --cov=app --cov-report=term-missing
 ```
 
 ## Validación de claves foráneas
