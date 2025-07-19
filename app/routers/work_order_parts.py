@@ -12,7 +12,7 @@ from app.services.work_order_parts import WorkOrderPartsService
 work_order_parts_router = APIRouter()
 
 
-@work_order_parts_router.post("/")
+@work_order_parts_router.post("/", response_model=ResponseSchema[WorkOrderPartOut])
 async def add_part(
     part_in: WorkOrderPartCreate,
     db: AsyncSession = Depends(get_db),

@@ -12,7 +12,7 @@ from app.services.work_order_tasks import WorkOrderTasksService
 work_order_tasks_router = APIRouter()
 
 
-@work_order_tasks_router.post("/")
+@work_order_tasks_router.post("/", response_model=ResponseSchema[WorkOrderTaskOut])
 async def create_task(
     task_in: WorkOrderTaskCreate,
     db: AsyncSession = Depends(get_db),

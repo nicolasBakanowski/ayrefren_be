@@ -47,7 +47,7 @@ async def get_truck(
     return success_response(data=data)
 
 
-@trucks_router.post("/")
+@trucks_router.post("/", response_model=ResponseSchema[TruckInDB])
 async def create_truck(
     truck_create: TruckCreate,
     db: AsyncSession = Depends(get_db),

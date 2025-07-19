@@ -15,7 +15,7 @@ from app.schemas.response import ResponseSchema
 work_orders_mechanic_router = APIRouter()
 
 
-@work_orders_mechanic_router.post("/")
+@work_orders_mechanic_router.post("/", response_model=ResponseSchema[WorkOrderMechanicOut])
 async def assign_mechanic(
     mechanic_in: WorkOrderMechanicCreate,
     db: AsyncSession = Depends(get_db),

@@ -30,7 +30,7 @@ async def list_clients(
     return success_response(data=data)
 
 
-@clients_router.post("/")
+@clients_router.post("/", response_model=ResponseSchema[ClientOut])
 async def create_client(client_in: ClientCreate, db: AsyncSession = Depends(get_db)):
     service = ClientsService(db)
     data = await service.create_client(client_in)

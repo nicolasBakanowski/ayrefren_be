@@ -72,7 +72,7 @@ def test_login_success(client):
         data={"username": user["email"], "password": "pass"},
     )
     assert resp.status_code == 200
-    assert "access_token" in resp.json()
+    assert "access_token" in resp.json()["data"]
 
 
 def test_get_user_success(client):

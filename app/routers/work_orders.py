@@ -12,7 +12,7 @@ from app.services.work_orders import WorkOrdersService
 work_orders_router = APIRouter()
 
 
-@work_orders_router.post("/")
+@work_orders_router.post("/", response_model=ResponseSchema[WorkOrderOut])
 async def create_order(
     data: WorkOrderCreate,
     db: AsyncSession = Depends(get_db),

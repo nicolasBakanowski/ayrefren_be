@@ -33,7 +33,7 @@ async def get_part(
     return success_response(data=data)
 
 
-@parts_router.post("/")
+@parts_router.post("/", response_model=ResponseSchema[PartOut])
 async def create_part(
     part_in: PartCreate,
     db: AsyncSession = Depends(get_db),

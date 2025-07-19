@@ -26,7 +26,7 @@ async def list_users(
     return success_response(data=data)
 
 
-@users_router.post("/register")
+@users_router.post("/register", response_model=ResponseSchema[UserOut])
 async def register(
     user: UserCreate,
     db: AsyncSession = Depends(get_db),

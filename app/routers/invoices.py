@@ -23,7 +23,7 @@ from app.services.invoices import BankChecksService, InvoicesService, PaymentsSe
 invoice_router = APIRouter()
 
 
-@invoice_router.post("/")
+@invoice_router.post("/", response_model=ResponseSchema[InvoiceOut])
 async def create_invoice(
     invoice_in: InvoiceCreate,
     db: AsyncSession = Depends(get_db),
@@ -56,7 +56,7 @@ async def list_payment_methods(
     return success_response(data=data)
 
 
-@invoice_router.post("/payments/")
+@invoice_router.post("/payments/", response_model=ResponseSchema[PaymentOut])
 async def register_payment(
     payment_in: PaymentCreate,
     db: AsyncSession = Depends(get_db),
@@ -68,7 +68,7 @@ async def register_payment(
     return success_response(data=data)
 
 
-@invoice_router.post("/bank-checks/{check_id}/exchange")
+@invoice_router.post("/bank-checks/{check_id}/exchange", response_model=ResponseSchema[BankCheckOut])
 async def exchange_bank_check(
     check_id: int,
     exchange_in: BankCheckExchange,
