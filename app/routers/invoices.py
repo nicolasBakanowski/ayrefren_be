@@ -62,7 +62,8 @@ async def register_payment(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    data = await service.create(payment_in)
+    payment = await service.create(payment_in)
+    data = PaymentOut.model_validate(payment).model_dump()
     return success_response(data=data)
 
 
@@ -74,7 +75,8 @@ async def exchange_bank_check(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = BankChecksService(db)
-    data = await service.mark_as_exchanged(check_id, exchange_in)
+    check = await service.mark_as_exchanged(check_id, exchange_in)
+    data = BankCheckOut.model_validate(check).model_dump()
     return success_response(data=data)
 
 
