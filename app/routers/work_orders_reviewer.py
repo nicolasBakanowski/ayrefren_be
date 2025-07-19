@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.constants.roles import ADMIN
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
+from app.core.responses import success_response
 from app.schemas.work_orders import WorkOrderReviewer
 from app.services.work_orders import WorkOrdersService
 
@@ -19,10 +20,11 @@ async def assign_reviewer(
     current_user: str = Depends(roles_allowed(ADMIN)),
 ):
     service = WorkOrdersService(db)
-    return await service.assign_reviewer(
+    data = await service.assign_reviewer(
         work_order_id=reviewer_in.work_order_id,
         reviewer_id=reviewer_in.reviewer_id,
     )
+    return success_response(data=data)
 
 
 @work_orders_reviewer_router.delete("/{work_order_id}/{reviewer_id}")
@@ -33,4 +35,5 @@ async def remove_reviewer(
     current_user: str = Depends(roles_allowed(ADMIN)),
 ):
     service = WorkOrdersService(db)
-    return await service.remove_reviewer(work_order_id, reviewer_id)
+    data = await service.remove_reviewer(work_order_id, reviewer_id)
+    return success_response(data=data)

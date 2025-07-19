@@ -33,7 +33,10 @@ def test_create_invoice_invalid_order(client):
             "total": 0,
         },
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_invoice_detail_with_surcharge(client):

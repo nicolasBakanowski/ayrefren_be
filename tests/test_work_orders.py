@@ -12,7 +12,10 @@ def test_create_order_invalid_truck(client):
         "/orders/",
         json={"truck_id": -1, "status_id": -1, "notes": "Test order"},
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_update_order_invalid_status(client):
@@ -36,7 +39,10 @@ def test_update_order_invalid_status(client):
 
     order_id = asyncio.run(seed_order())
     resp = http.put(f"/orders/{order_id}", json={"status_id": 999})
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_create_order_success(client):
@@ -62,7 +68,7 @@ def test_create_order_success(client):
         json={"truck_id": truck_id, "status_id": status_id, "notes": "Test"},
     )
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert data["truck_id"] == truck_id
     assert data["status_id"] == status_id
 
@@ -140,7 +146,7 @@ def test_update_order_success(client):
     order_id, new_status_id = asyncio.run(seed_data())
     resp = http.put(f"/orders/{order_id}", json={"status_id": new_status_id})
     assert resp.status_code == 200
-    assert resp.json()["status_id"] == new_status_id
+    assert resp.json()["data"]["status_id"] == new_status_id
 
 
 def test_delete_order_success(client):
@@ -165,7 +171,7 @@ def test_delete_order_success(client):
     order_id = asyncio.run(seed_order())
     resp = http.delete(f"/orders/{order_id}")
     assert resp.status_code == 200
-    assert resp.json()["detail"] == "Orden eliminada"
+    assert resp.json()["data"]["detail"] == "Orden eliminada"
 
 
 def test_assign_and_remove_reviewer(client):
@@ -204,11 +210,11 @@ def test_assign_and_remove_reviewer(client):
         json={"work_order_id": order_id, "reviewer_id": reviewer_id},
     )
     assert resp.status_code == 200
-    assert resp.json()["reviewed_by"] == reviewer_id
+    assert resp.json()["data"]["reviewed_by"] == reviewer_id
 
     resp = http.delete(f"/work-orders/reviewer/{order_id}/{reviewer_id}")
     assert resp.status_code == 200
-    assert resp.json()["reviewed_by"] is None
+    assert resp.json()["data"]["reviewed_by"] is None
 
 
 def test_order_total_with_increments(client):

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.responses import success_response
 from app.schemas.clients import ClientCreate, ClientOut
 from app.services.clients import ClientsService
 
@@ -27,10 +28,11 @@ async def list_clients(
     )
 
 
-@clients_router.post("/", response_model=ClientOut)
+@clients_router.post("/")
 async def create_client(client_in: ClientCreate, db: AsyncSession = Depends(get_db)):
     service = ClientsService(db)
-    return await service.create_client(client_in)
+    data = await service.create_client(client_in)
+    return success_response(data=data)
 
 
 @clients_router.get("/{id}", response_model=ClientOut)
@@ -39,15 +41,17 @@ async def get_client(id: int, db: AsyncSession = Depends(get_db)):
     return await service.get_client_by_id(id)
 
 
-@clients_router.delete("/{id}", response_model=bool)
+@clients_router.delete("/{id}")
 async def delete_client(id: int, db: AsyncSession = Depends(get_db)):
     service = ClientsService(db)
-    return await service.delete_client(id)
+    data = await service.delete_client(id)
+    return success_response(data=data)
 
 
-@clients_router.put("/{id}", response_model=ClientOut)
+@clients_router.put("/{id}")
 async def update_client(
     id: int, client_in: ClientOut, db: AsyncSession = Depends(get_db)
 ):
     service = ClientsService(db)
-    return await service.update_client(id, client_in)
+    data = await service.update_client(id, client_in)
+    return success_response(data=data)

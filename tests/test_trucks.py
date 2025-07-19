@@ -13,7 +13,10 @@ def test_create_truck_invalid_client(client):
             "year": 2020,
         },
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_truck_crud_flow(client):
@@ -42,7 +45,7 @@ def test_truck_crud_flow(client):
         },
     )
     assert resp.status_code == 200
-    truck_id = resp.json()["id"]
+    truck_id = resp.json()["data"]["id"]
 
     resp = http.get("/trucks/")
     assert resp.status_code == 200
@@ -57,7 +60,8 @@ def test_truck_crud_flow(client):
         json={"brand": "Scania"},
     )
     assert resp.status_code == 200
-    assert resp.json()["brand"] == "Scania"
+    assert resp.json()["data"]["brand"] == "Scania"
 
     resp = http.delete(f"/trucks/{truck_id}")
-    assert resp.status_code == 204
+    assert resp.status_code == 200
+    assert resp.json()["success"]

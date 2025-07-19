@@ -11,4 +11,7 @@ def test_add_part_invalid_fk(client):
             "increment_per_unit": 20,
         },
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404

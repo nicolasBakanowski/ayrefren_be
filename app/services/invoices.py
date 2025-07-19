@@ -95,7 +95,9 @@ class BankChecksService:
     def __init__(self, db: AsyncSession):
         self.repo = PaymentsRepository(db)
 
-    async def mark_as_exchanged(self, check_id: int, data: BankCheckExchange) -> BankCheck:
+    async def mark_as_exchanged(
+        self, check_id: int, data: BankCheckExchange
+    ) -> BankCheck:
         check = await self.repo.mark_check_as_exchanged(check_id, data.exchange_date)
         if not check:
             raise HTTPException(status_code=404, detail="Cheque no encontrado")

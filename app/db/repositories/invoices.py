@@ -1,5 +1,5 @@
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.invoices import BankCheck, Invoice, Payment, PaymentMethod
 from app.models.work_orders import WorkOrder
-from app.schemas.invoices import BankCheckIn, InvoiceCreate, PaymentCreate
+from app.schemas.invoices import InvoiceCreate, PaymentCreate
 
 
 class InvoicesRepository:
@@ -45,7 +45,7 @@ class PaymentsRepository:
         self.db.add(payment)
         await self.db.flush()
         for bc in bank_checks_data:
-            self.db.add(BankCheck(payment_id=payment.id, **bc))
+            self.db.add(BankCheck(payment_id=payment.id, **bc.dict()))
 
         # Actualizar total pagado en la factura
         invoice = await self.db.get(Invoice, data.invoice_id)

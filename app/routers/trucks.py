@@ -1,11 +1,12 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.roles import ADMIN, REVISOR
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
+from app.core.responses import success_response
 from app.schemas.trucks import TruckCreate, TruckInDB, TruckUpdate
 from app.services.trucks import TrucksService
 
@@ -43,17 +44,18 @@ async def get_truck(
     return await service.get_truck(truck_id)
 
 
-@trucks_router.post("/", response_model=TruckInDB)
+@trucks_router.post("/")
 async def create_truck(
     truck_create: TruckCreate,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = TrucksService(db)
-    return await service.create_truck(truck_create)
+    data = await service.create_truck(truck_create)
+    return success_response(data=data)
 
 
-@trucks_router.put("/{truck_id}", response_model=TruckInDB)
+@trucks_router.put("/{truck_id}")
 async def update_truck(
     truck_id: int,
     truck_update: TruckUpdate,
@@ -61,10 +63,11 @@ async def update_truck(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = TrucksService(db)
-    return await service.update_truck(truck_id, truck_update)
+    data = await service.update_truck(truck_id, truck_update)
+    return success_response(data=data)
 
 
-@trucks_router.delete("/{truck_id}", status_code=status.HTTP_204_NO_CONTENT)
+@trucks_router.delete("/{truck_id}")
 async def delete_truck(
     truck_id: int,
     db: AsyncSession = Depends(get_db),
@@ -72,4 +75,4 @@ async def delete_truck(
 ):
     service = TrucksService(db)
     await service.delete_truck(truck_id)
-    return None
+    return success_response()
