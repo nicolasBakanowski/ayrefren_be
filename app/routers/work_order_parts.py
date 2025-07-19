@@ -5,19 +5,21 @@ from app.constants.roles import ADMIN, MECHANIC, REVISOR
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.schemas.work_order_parts import WorkOrderPartCreate, WorkOrderPartOut
+from app.core.responses import success_response
 from app.services.work_order_parts import WorkOrderPartsService
 
 work_order_parts_router = APIRouter()
 
 
-@work_order_parts_router.post("/", response_model=WorkOrderPartOut)
+@work_order_parts_router.post("/")
 async def add_part(
     part_in: WorkOrderPartCreate,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrderPartsService(db)
-    return await service.create_part(part_in)
+    data = await service.create_part(part_in)
+    return success_response(data=data)
 
 
 @work_order_parts_router.get(
@@ -40,4 +42,5 @@ async def remove_part(
     current_user: str = Depends(roles_allowed(ADMIN)),
 ):
     service = WorkOrderPartsService(db)
-    return await service.delete_part(part_id)
+    data = await service.delete_part(part_id)
+    return success_response(data=data)

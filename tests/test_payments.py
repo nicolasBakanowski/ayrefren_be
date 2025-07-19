@@ -149,12 +149,12 @@ def test_exchange_bank_check(client):
         },
     )
     assert resp.status_code == 200
-    check_id = resp.json()["bank_checks"][0]["id"]
+    check_id = resp.json()["data"]["bank_checks"][0]["id"]
 
     resp = http.post(
         f"/invoices/bank-checks/{check_id}/exchange",
         json={"exchange_date": "2023-01-10T00:00:00"},
     )
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert data["exchange_date"].startswith("2023-01-10")

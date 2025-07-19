@@ -14,7 +14,10 @@ def test_add_task_invalid_fk(client):
             "external": False,
         },
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_task_flow(client):
@@ -63,7 +66,7 @@ def test_task_flow(client):
         },
     )
     assert resp.status_code == 200
-    task_id = resp.json()["id"]
+    task_id = resp.json()["data"]["id"]
 
     resp = http.get(f"/work-orders/tasks/{order_id}")
     assert resp.status_code == 200
@@ -71,7 +74,7 @@ def test_task_flow(client):
 
     resp = http.delete(f"/work-orders/tasks/{task_id}")
     assert resp.status_code == 200
-    assert resp.json()["detail"] == "Tarea eliminada"
+    assert resp.json()["data"]["detail"] == "Tarea eliminada"
 
     resp = http.get(f"/work-orders/tasks/{order_id}")
     assert resp.status_code == 200

@@ -16,6 +16,7 @@ from app.schemas.invoices import (
     PaymentMethodOut,
     PaymentOut,
 )
+from app.core.responses import success_response
 from app.services.invoices import (
     BankChecksService,
     InvoicesService,
@@ -25,14 +26,15 @@ from app.services.invoices import (
 invoice_router = APIRouter()
 
 
-@invoice_router.post("/", response_model=InvoiceOut)
+@invoice_router.post("/")
 async def create_invoice(
     invoice_in: InvoiceCreate,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = InvoicesService(db)
-    return await service.create(invoice_in)
+    data = await service.create(invoice_in)
+    return success_response(data=data)
 
 
 @invoice_router.get("/", response_model=list[InvoiceOut])
@@ -53,17 +55,18 @@ async def list_payment_methods(
     return await service.list_methods()
 
 
-@invoice_router.post("/payments/", response_model=PaymentOut)
+@invoice_router.post("/payments/")
 async def register_payment(
     payment_in: PaymentCreate,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    return await service.create(payment_in)
+    data = await service.create(payment_in)
+    return success_response(data=data)
 
 
-@invoice_router.post("/bank-checks/{check_id}/exchange", response_model=BankCheckOut)
+@invoice_router.post("/bank-checks/{check_id}/exchange")
 async def exchange_bank_check(
     check_id: int,
     exchange_in: BankCheckExchange,
@@ -71,7 +74,8 @@ async def exchange_bank_check(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = BankChecksService(db)
-    return await service.mark_as_exchanged(check_id, exchange_in)
+    data = await service.mark_as_exchanged(check_id, exchange_in)
+    return success_response(data=data)
 
 
 @invoice_router.get("/payments/{invoice_id}/total")

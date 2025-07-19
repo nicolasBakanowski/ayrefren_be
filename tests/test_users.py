@@ -14,7 +14,10 @@ def test_register_invalid_role(client):
             "role_id": 999,
         },
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_register_success(client):
@@ -40,7 +43,8 @@ def test_register_success(client):
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert data["email"] == "john@example.com"
+    assert data["success"]
+    assert data["data"]["email"] == "john@example.com"
 
 
 def test_login_success(client):
@@ -60,7 +64,7 @@ def test_login_success(client):
                     "password": "pass",
                     "role_id": role.id,
                 },
-            ).json()
+            ).json()["data"]
 
     user = asyncio.run(seed_user())
     resp = http.post(
@@ -89,7 +93,7 @@ def test_get_user_success(client):
                     "role_id": role.id,
                 },
             )
-            return resp.json()["id"], role.id
+            return resp.json()["data"]["id"], role.id
 
     user_id, _ = asyncio.run(seed_user())
     resp = http.get(f"/users/{user_id}")
@@ -144,7 +148,7 @@ def test_update_user_success(client):
                     "role_id": role1.id,
                 },
             )
-            user = resp.json()
+            user = resp.json()["data"]
             return user["id"], role2.id
 
     user_id, new_role = asyncio.run(seed_user())
@@ -158,7 +162,7 @@ def test_update_user_success(client):
         },
     )
     assert resp.status_code == 200
-    assert resp.json()["role_id"] == new_role
+    assert resp.json()["data"]["role_id"] == new_role
 
 
 def test_delete_user_success(client):
@@ -178,13 +182,13 @@ def test_delete_user_success(client):
                     "password": "pwd",
                     "role_id": role.id,
                 },
-            ).json()
+            ).json()["data"]
             return user["id"]
 
     user_id = asyncio.run(seed_user())
     resp = http.delete(f"/users/{user_id}")
     assert resp.status_code == 200
-    assert resp.json()["detail"]
+    assert resp.json()["data"]["detail"]
 
 
 def test_change_password(client):
@@ -204,7 +208,7 @@ def test_change_password(client):
                     "password": "old",
                     "role_id": role.id,
                 },
-            ).json()
+            ).json()["data"]
             return user["id"], user["email"]
 
     user_id, email = asyncio.run(seed_user())

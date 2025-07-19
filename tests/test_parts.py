@@ -5,7 +5,7 @@ def test_parts_crud_flow(client):
         json={"name": "Bolt", "price": 5.0, "description": "A"},
     )
     assert resp.status_code == 200
-    part = resp.json()
+    part = resp.json()["data"]
     part_id = part["id"]
 
     resp = http.get("/parts/")
@@ -18,11 +18,12 @@ def test_parts_crud_flow(client):
 
     resp = http.put(f"/parts/{part_id}", json={"name": "Nut"})
     assert resp.status_code == 200
-    assert resp.json()["name"] == "Nut"
+    assert resp.json()["data"]["name"] == "Nut"
 
     resp = http.delete(f"/parts/{part_id}")
     assert resp.status_code == 200
-    assert resp.json()["detail"] == "Part deleted"
+    assert resp.json()["data"]["detail"] == "Part deleted"
 
     resp = http.get(f"/parts/{part_id}")
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    assert not resp.json()["success"]

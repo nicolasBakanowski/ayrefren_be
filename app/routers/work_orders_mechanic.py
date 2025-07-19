@@ -8,19 +8,21 @@ from app.schemas.work_orders_mechanic import (
     WorkOrderMechanicCreate,
     WorkOrderMechanicOut,
 )
+from app.core.responses import success_response
 from app.services.work_orders_mechanic import WorkOrdersMechanicService
 
 work_orders_mechanic_router = APIRouter()
 
 
-@work_orders_mechanic_router.post("/", response_model=WorkOrderMechanicOut)
+@work_orders_mechanic_router.post("/")
 async def assign_mechanic(
     mechanic_in: WorkOrderMechanicCreate,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrdersMechanicService(db)
-    return await service.assign_mechanic(mechanic_in)
+    data = await service.assign_mechanic(mechanic_in)
+    return success_response(data=data)
 
 
 @work_orders_mechanic_router.get(
@@ -42,4 +44,5 @@ async def remove_mechanic(
     current_user: str = Depends(roles_allowed(ADMIN)),
 ):
     service = WorkOrdersMechanicService(db)
-    return await service.remove_mechanic(mechanic_id)
+    data = await service.remove_mechanic(mechanic_id)
+    return success_response(data=data)

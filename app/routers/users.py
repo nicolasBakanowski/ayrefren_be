@@ -8,6 +8,7 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.models.users import User
 from app.schemas.users import ChangePasswordSchema, UserCreate, UserOut
+from app.core.responses import success_response
 from app.services.users import UsersService
 
 users_router = APIRouter()
@@ -23,14 +24,15 @@ async def list_users(
     return await service.list_users(role_id)
 
 
-@users_router.post("/register", response_model=UserOut)
+@users_router.post("/register")
 async def register(
     user: UserCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = UsersService(db)
-    return await service.register(user)
+    data = await service.register(user)
+    return success_response(data=data)
 
 
 @users_router.get("/{user_id}", response_model=UserOut)
@@ -43,7 +45,7 @@ async def get_user(
     return await service.get_user(user_id)
 
 
-@users_router.put("/{user_id}", response_model=UserOut)
+@users_router.put("/{user_id}")
 async def update_user(
     user_id: int,
     user: UserCreate,
@@ -51,20 +53,22 @@ async def update_user(
     current_user: User = Depends(roles_allowed(ADMIN)),
 ):
     service = UsersService(db)
-    return await service.update_user(user_id, user)
+    data = await service.update_user(user_id, user)
+    return success_response(data=data)
 
 
-@users_router.delete("/{user_id}", response_model=dict)
+@users_router.delete("/{user_id}")
 async def delete_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(roles_allowed(ADMIN)),
 ):
     service = UsersService(db)
-    return await service.delete_user(user_id)
+    data = await service.delete_user(user_id)
+    return success_response(data=data)
 
 
-@users_router.put("/{user_id}/password", response_model=UserOut)
+@users_router.put("/{user_id}/password")
 async def change_password(
     user_id: int,
     data: ChangePasswordSchema,
@@ -72,7 +76,8 @@ async def change_password(
     current_user: User = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = UsersService(db)
-    return await service.change_password(user_id, data)
+    data = await service.change_password(user_id, data)
+    return success_response(data=data)
 
 
 @users_router.get("/me", response_model=UserOut)

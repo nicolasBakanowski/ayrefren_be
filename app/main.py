@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from app.schemas.response import ResponseSchema
+from app.constants.response_codes import ResponseCode
 
 from app.routers import (
     auth_router,
@@ -25,6 +28,28 @@ def get_application() -> FastAPI:
         version="1.0.0",
         docs_url="/docs",
     )
+
+    @app.exception_handler(HTTPException)
+    async def custom_http_exception_handler(request, exc: HTTPException):
+        return JSONResponse(
+            status_code=200,
+            content=ResponseSchema(
+                code=exc.status_code,
+                success=False,
+                message=exc.detail,
+            ).model_dump(),
+        )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request, exc: Exception):
+        return JSONResponse(
+            status_code=200,
+            content=ResponseSchema(
+                code=ResponseCode.INTERNAL_ERROR,
+                success=False,
+                message=str(exc),
+            ).model_dump(),
+        )
 
     # Middleware CORS
     app.add_middleware(

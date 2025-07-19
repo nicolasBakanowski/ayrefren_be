@@ -7,7 +7,10 @@ def test_assign_mechanic_invalid_fk(client):
         "/work-orders/mechanics/",
         json={"work_order_id": 999, "user_id": 999, "area_id": 999},
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
 
 
 def test_list_and_remove_mechanic(client):
@@ -49,7 +52,7 @@ def test_list_and_remove_mechanic(client):
         json={"work_order_id": work_order_id, "user_id": user_id, "area_id": area_id},
     )
     assert resp.status_code == 200
-    mech_id = resp.json()["id"]
+    mech_id = resp.json()["data"]["id"]
 
     resp = http.get(f"/work-orders/mechanics/{work_order_id}")
     assert resp.status_code == 200
@@ -57,4 +60,4 @@ def test_list_and_remove_mechanic(client):
 
     resp = http.delete(f"/work-orders/mechanics/{mech_id}")
     assert resp.status_code == 200
-    assert resp.json()["detail"] == "Mecánico eliminado"
+    assert resp.json()["data"]["detail"] == "Mecánico eliminado"
