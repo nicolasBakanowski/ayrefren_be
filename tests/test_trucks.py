@@ -49,11 +49,11 @@ def test_truck_crud_flow(client):
 
     resp = http.get("/trucks/")
     assert resp.status_code == 200
-    assert any(t["id"] == truck_id for t in resp.json())
+    assert any(t["id"] == truck_id for t in resp.json()["data"])
 
     resp = http.get(f"/trucks/{truck_id}")
     assert resp.status_code == 200
-    assert resp.json()["license_plate"] == "XYZ123"
+    assert resp.json()["data"]["license_plate"] == "XYZ123"
 
     resp = http.put(
         f"/trucks/{truck_id}",

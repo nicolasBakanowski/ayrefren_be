@@ -10,11 +10,12 @@ from app.schemas.work_orders_mechanic import (
     WorkOrderMechanicOut,
 )
 from app.services.work_orders_mechanic import WorkOrdersMechanicService
+from app.schemas.response import ResponseSchema
 
 work_orders_mechanic_router = APIRouter()
 
 
-@work_orders_mechanic_router.post("/")
+@work_orders_mechanic_router.post("/", response_model=ResponseSchema[WorkOrderMechanicOut])
 async def assign_mechanic(
     mechanic_in: WorkOrderMechanicCreate,
     db: AsyncSession = Depends(get_db),
@@ -26,7 +27,7 @@ async def assign_mechanic(
 
 
 @work_orders_mechanic_router.get(
-    "/{work_order_id}", response_model=list[WorkOrderMechanicOut]
+    "/{work_order_id}", response_model=ResponseSchema[list[WorkOrderMechanicOut]]
 )
 async def list_mechanics(
     work_order_id: int = Path(..., gt=0),
@@ -34,7 +35,8 @@ async def list_mechanics(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrdersMechanicService(db)
-    return await service.list_mechanics(work_order_id)
+    data = await service.list_mechanics(work_order_id)
+    return success_response(data=data)
 
 
 @work_orders_mechanic_router.delete("/{mechanic_id}")

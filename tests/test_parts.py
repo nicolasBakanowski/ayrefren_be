@@ -10,11 +10,11 @@ def test_parts_crud_flow(client):
 
     resp = http.get("/parts/")
     assert resp.status_code == 200
-    assert any(p["id"] == part_id for p in resp.json())
+    assert any(p["id"] == part_id for p in resp.json()["data"])
 
     resp = http.get(f"/parts/{part_id}")
     assert resp.status_code == 200
-    assert resp.json()["name"] == "Bolt"
+    assert resp.json()["data"]["name"] == "Bolt"
 
     resp = http.put(f"/parts/{part_id}", json={"name": "Nut"})
     assert resp.status_code == 200

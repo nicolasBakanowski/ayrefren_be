@@ -80,6 +80,6 @@ def test_invoice_detail_with_surcharge(client):
     invoice_id = asyncio.run(seed())
     resp = http.get(f"/invoices/{invoice_id}/detail")
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert data["total_without_surcharge"] == 100
     assert data["total_with_surcharge"] == 121

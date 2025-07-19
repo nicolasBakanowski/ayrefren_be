@@ -94,7 +94,7 @@ def test_list_orders(client):
     asyncio.run(seed_orders())
     resp = http.get("/orders/")
     assert resp.status_code == 200
-    assert len(resp.json()) == 2
+    assert len(resp.json()["data"]) == 2
 
 
 def test_get_order_success(client):
@@ -119,7 +119,7 @@ def test_get_order_success(client):
     order_id = asyncio.run(seed_order())
     resp = http.get(f"/orders/{order_id}")
     assert resp.status_code == 200
-    assert resp.json()["id"] == order_id
+    assert resp.json()["data"]["id"] == order_id
 
 
 def test_update_order_success(client):
@@ -276,4 +276,4 @@ def test_order_total_with_increments(client):
 
     assert resp.status_code == 200
     # 2 parts * 10 + 10% = 22; plus task 30 => 52
-    assert resp.json()["total"] == 52
+    assert resp.json()["data"]["total"] == 52
