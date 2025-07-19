@@ -9,19 +9,21 @@ from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.models.users import User
 from app.schemas.users import ChangePasswordSchema, UserCreate, UserOut
+from app.schemas.response import ResponseSchema
 from app.services.users import UsersService
 
 users_router = APIRouter()
 
 
-@users_router.get("/", response_model=List[UserOut])
+@users_router.get("/", response_model=ResponseSchema[list[UserOut]])
 async def list_users(
     role_id: int = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = UsersService(db)
-    return await service.list_users(role_id)
+    data = await service.list_users(role_id)
+    return success_response(data=data)
 
 
 @users_router.post("/register")
@@ -35,14 +37,15 @@ async def register(
     return success_response(data=data)
 
 
-@users_router.get("/{user_id}", response_model=UserOut)
+@users_router.get("/{user_id}", response_model=ResponseSchema[UserOut])
 async def get_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = UsersService(db)
-    return await service.get_user(user_id)
+    data = await service.get_user(user_id)
+    return success_response(data=data)
 
 
 @users_router.put("/{user_id}")
@@ -80,8 +83,8 @@ async def change_password(
     return success_response(data=data)
 
 
-@users_router.get("/me", response_model=UserOut)
+@users_router.get("/me", response_model=ResponseSchema[UserOut])
 async def get_current_user(
     current_user: User = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
-    return current_user
+    return success_response(data=current_user)

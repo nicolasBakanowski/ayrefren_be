@@ -1,10 +1,13 @@
-from typing import Any, Optional
+from typing import Any, Optional, Generic, TypeVar
 
 from pydantic import BaseModel
 
 
-class ResponseSchema(BaseModel):
+T = TypeVar("T")
+
+
+class ResponseSchema(BaseModel, Generic[T]):
     code: int
     success: bool
     message: Optional[str] = None
-    data: Optional[Any] = None
+    data: Optional[T] = None

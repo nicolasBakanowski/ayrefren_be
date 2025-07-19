@@ -98,7 +98,7 @@ def test_get_user_success(client):
     user_id, _ = asyncio.run(seed_user())
     resp = http.get(f"/users/{user_id}")
     assert resp.status_code == 200
-    assert resp.json()["id"] == user_id
+    assert resp.json()["data"]["id"] == user_id
 
 
 def test_list_users(client):
@@ -125,7 +125,7 @@ def test_list_users(client):
     role_id = asyncio.run(seed_users())
     resp = http.get(f"/users/?role_id={role_id}")
     assert resp.status_code == 200
-    assert len(resp.json()) == 2
+    assert len(resp.json()["data"]) == 2
 
 
 def test_update_user_success(client):

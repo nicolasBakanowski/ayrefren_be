@@ -6,28 +6,31 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.schemas.parts import PartCreate, PartOut, PartUpdate
+from app.schemas.response import ResponseSchema
 from app.services.parts import PartsService
 
 parts_router = APIRouter()
 
 
-@parts_router.get("/", response_model=list[PartOut])
+@parts_router.get("/", response_model=ResponseSchema[list[PartOut]])
 async def list_parts(
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PartsService(db)
-    return await service.list_parts()
+    data = await service.list_parts()
+    return success_response(data=data)
 
 
-@parts_router.get("/{part_id}", response_model=PartOut)
+@parts_router.get("/{part_id}", response_model=ResponseSchema[PartOut])
 async def get_part(
     part_id: int = Path(..., gt=0),
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PartsService(db)
-    return await service.get_part(part_id)
+    data = await service.get_part(part_id)
+    return success_response(data=data)
 
 
 @parts_router.post("/")

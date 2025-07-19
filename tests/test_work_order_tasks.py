@@ -70,7 +70,7 @@ def test_task_flow(client):
 
     resp = http.get(f"/work-orders/tasks/{order_id}")
     assert resp.status_code == 200
-    assert any(t["id"] == task_id for t in resp.json())
+    assert any(t["id"] == task_id for t in resp.json()["data"])
 
     resp = http.delete(f"/work-orders/tasks/{task_id}")
     assert resp.status_code == 200
@@ -78,4 +78,4 @@ def test_task_flow(client):
 
     resp = http.get(f"/work-orders/tasks/{order_id}")
     assert resp.status_code == 200
-    assert len(resp.json()) == 0
+    assert len(resp.json()["data"]) == 0

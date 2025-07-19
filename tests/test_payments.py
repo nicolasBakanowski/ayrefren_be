@@ -56,7 +56,7 @@ def test_list_payment_methods(client):
 
     resp = http.get("/invoices/payment-methods")
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert len(data) == 1
     assert data[0]["name"] == "Cash"
 
@@ -76,7 +76,7 @@ def test_total_paid(client):
 
     resp = http.get(f"/invoices/payments/{invoice_id}/total")
     assert resp.status_code == 200
-    assert resp.json()["total"] == 100
+    assert resp.json()["data"]["total"] == 100
 
 
 def test_partial_payments_different_methods(client):
@@ -104,17 +104,17 @@ def test_partial_payments_different_methods(client):
 
     resp = http.get(f"/invoices/payments/{invoice_id}")
     assert resp.status_code == 200
-    payments = resp.json()
+    payments = resp.json()["data"]
     assert len(payments) == 2
     assert {p["method_id"] for p in payments} == {method1_id, method2_id}
 
     resp = http.get(f"/invoices/{invoice_id}")
     assert resp.status_code == 200
-    assert resp.json()["paid"] == 100
+    assert resp.json()["data"]["paid"] == 100
 
     resp = http.get(f"/invoices/payments/{invoice_id}/total")
     assert resp.status_code == 200
-    assert resp.json()["total"] == 100
+    assert resp.json()["data"]["total"] == 100
 
 
 def test_invoice_detail_surcharge(client):
@@ -123,7 +123,7 @@ def test_invoice_detail_surcharge(client):
 
     resp = http.get(f"/invoices/{invoice_id}/detail")
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert data["total_without_surcharge"] == 100
     assert data["total_with_surcharge"] == 121
 

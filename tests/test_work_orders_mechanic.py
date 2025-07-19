@@ -56,7 +56,7 @@ def test_list_and_remove_mechanic(client):
 
     resp = http.get(f"/work-orders/mechanics/{work_order_id}")
     assert resp.status_code == 200
-    assert len(resp.json()) == 1
+    assert len(resp.json()["data"]) == 1
 
     resp = http.delete(f"/work-orders/mechanics/{mech_id}")
     assert resp.status_code == 200

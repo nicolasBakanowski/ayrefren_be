@@ -90,7 +90,7 @@ def test_billing_by_client_date_range(client):
         params={"start_date": "2024-01-01", "end_date": "2024-01-31"},
     )
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert len(data) == 1
     assert data[0]["client_id"] == client1_id
     assert data[0]["total_billed"] == 100
@@ -109,7 +109,7 @@ def test_payments_by_method_filters(client):
         },
     )
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     assert len(data) == 1
     assert data[0]["method"] == "Cash"
     assert data[0]["total_received"] == 100
