@@ -45,7 +45,7 @@ class PaymentsRepository:
         self.db.add(payment)
         await self.db.flush()
         for bc in bank_checks_data:
-            self.db.add(BankCheck(payment_id=payment.id, **bc))
+            self.db.add(BankCheck(payment_id=payment.id, **bc.dict()))
 
         # Actualizar total pagado en la factura
         invoice = await self.db.get(Invoice, data.invoice_id)
