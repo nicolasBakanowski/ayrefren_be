@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.schemas.clients import ClientCreate, ClientOut
 from app.core.responses import success_response
+from app.schemas.clients import ClientCreate, ClientOut
 from app.services.clients import ClientsService
 
 clients_router = APIRouter()

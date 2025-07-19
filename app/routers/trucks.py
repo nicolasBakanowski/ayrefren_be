@@ -1,13 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.roles import ADMIN, REVISOR
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
-from app.schemas.trucks import TruckCreate, TruckInDB, TruckUpdate
 from app.core.responses import success_response
+from app.schemas.trucks import TruckCreate, TruckInDB, TruckUpdate
 from app.services.trucks import TrucksService
 
 trucks_router = APIRouter()

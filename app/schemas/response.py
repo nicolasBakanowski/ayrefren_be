@@ -1,5 +1,7 @@
 from typing import Any, Optional
+
 from pydantic import BaseModel
+
 
 class ResponseSchema(BaseModel):
     code: int

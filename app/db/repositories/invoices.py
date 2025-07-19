@@ -1,5 +1,5 @@
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.invoices import BankCheck, Invoice, Payment, PaymentMethod
 from app.models.work_orders import WorkOrder
-from app.schemas.invoices import BankCheckIn, InvoiceCreate, PaymentCreate
+from app.schemas.invoices import InvoiceCreate, PaymentCreate
 
 
 class InvoicesRepository:

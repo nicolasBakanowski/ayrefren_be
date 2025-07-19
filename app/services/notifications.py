@@ -13,8 +13,12 @@ class NotificationService:
         self.db = db
         self.users_repo = UsersRepository(db)
 
-    async def _send_email(self, recipients: Iterable[str], subject: str, body: str) -> None:
-        logging.info("Sending email to %s: %s - %s", ", ".join(recipients), subject, body)
+    async def _send_email(
+        self, recipients: Iterable[str], subject: str, body: str
+    ) -> None:
+        logging.info(
+            "Sending email to %s: %s - %s", ", ".join(recipients), subject, body
+        )
 
     async def notify_due_check(self, check: BankCheck) -> None:
         admins = await self.users_repo.list(role_id=ADMIN)
