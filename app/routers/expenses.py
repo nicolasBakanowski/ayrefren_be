@@ -10,7 +10,9 @@ from app.services.expenses import ExpensesService
 expenses_router = APIRouter()
 
 
-@expenses_router.get("/expense-types", response_model=ResponseSchema[list[ExpenseTypeOut]])
+@expenses_router.get(
+    "/expense-types", response_model=ResponseSchema[list[ExpenseTypeOut]]
+)
 async def list_expense_types(db: AsyncSession = Depends(get_db)):
     service = ExpensesService(db)
     data = await service.get_expense_types()

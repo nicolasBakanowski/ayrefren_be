@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,18 +34,21 @@ class ReportsService:
     ):
         query = text(
             """
-            SELECT
-              c.id AS client_id,
-              c.name AS client_name,
-              SUM(i.total) AS total_billed,
-              SUM(i.paid) AS total_paid
-            FROM invoices i
-            JOIN clients c ON c.id = i.client_id
-            WHERE (:start IS NULL OR i.issued_at >= :start)
-              AND (:end IS NULL OR i.issued_at <= :end)
-            GROUP BY c.id, c.name
-            ORDER BY total_billed DESC;
-        """
+                SELECT
+                  c.id AS client_id,
+                  c.name AS client_name,
+                  SUM(i.total) AS total_billed,
+                  SUM(i.paid) AS total_paid
+                FROM invoices i
+                JOIN clients c ON c.id = i.client_id
+                WHERE (:start IS NULL OR i.issued_at >= :start)
+                  AND (:end IS NULL OR i.issued_at <= :end)
+                GROUP BY c.id, c.name
+                ORDER BY total_billed DESC;
+            """
+        ).bindparams(
+            sa.bindparam("start", type_=sa.DateTime()),
+            sa.bindparam("end", type_=sa.DateTime()),
         )
         params = {"start": start_date, "end": end_date}
         result = await self.db.execute(query, params)
@@ -88,18 +92,22 @@ class ReportsService:
     ):
         query = text(
             """
-            SELECT
-              pm.name AS method,
-              SUM(p.amount) AS total_received
-            FROM payments p
-            JOIN payment_methods pm ON pm.id = p.method_id
-            JOIN invoices i ON i.id = p.invoice_id
-            WHERE (:start IS NULL OR p.date >= :start)
-              AND (:end IS NULL OR p.date <= :end)
-              AND (:client IS NULL OR i.client_id = :client)
-            GROUP BY pm.name
-            ORDER BY total_received DESC;
-        """
+                SELECT
+                  pm.name AS method,
+                  SUM(p.amount) AS total_received
+                FROM payments p
+                JOIN payment_methods pm ON pm.id = p.method_id
+                JOIN invoices i ON i.id = p.invoice_id
+                WHERE (:start IS NULL OR p.date >= :start)
+                  AND (:end IS NULL OR p.date <= :end)
+                  AND (:client IS NULL OR i.client_id = :client)
+                GROUP BY pm.name
+                ORDER BY total_received DESC;
+            """
+        ).bindparams(
+            sa.bindparam("start", type_=sa.DateTime()),
+            sa.bindparam("end", type_=sa.DateTime()),
+            sa.bindparam("client", type_=sa.Integer()),
         )
         params = {"start": start_date, "end": end_date, "client": client_id}
         result = await self.db.execute(query, params)
