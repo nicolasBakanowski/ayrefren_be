@@ -1,4 +1,5 @@
 from .clients import Client, ClientType
+from .expense import Expense, ExpenseType
 from .invoices import Invoice, InvoiceStatus, InvoiceType, Payment, PaymentMethod
 from .parts import Part
 from .trucks import Truck
@@ -16,6 +17,8 @@ __all__ = [
     "User",
     "WorkOrderPart",
     "WorkOrderTask",
+    "ExpenseType",
+    "Expense",
     "WorkOrder",
     "WorkOrderStatus",
     "WorkArea",
