@@ -7,6 +7,7 @@ from app.routers import (
     auth_router,
     clients_router,
     invoice_router,
+    expenses_router,
     parts_router,
     reports_router,
     trucks_router,
@@ -101,6 +102,7 @@ def include_routers(app: FastAPI) -> None:
 
     app.include_router(trucks_router, prefix="/trucks", tags=["Camiones"])
 
+    app.include_router(expenses_router, tags=["Gastos"])
     app.include_router(parts_router, prefix="/parts", tags=["Repuestos"])
 
 
