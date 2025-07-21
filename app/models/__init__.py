@@ -3,7 +3,7 @@ from .expense import Expense, ExpenseType
 from .invoices import Invoice, InvoiceStatus, InvoiceType, Payment, PaymentMethod
 from .parts import Part
 from .trucks import Truck
-from .users import User
+from .users import User, Role
 from .work_order_parts import WorkOrderPart
 from .work_order_tasks import WorkOrderTask
 from .work_orders import WorkOrder, WorkOrderStatus
@@ -28,4 +28,5 @@ __all__ = [
     "PaymentMethod",
     "Truck",
     "Part",
+    "Role",
 ]

@@ -115,22 +115,22 @@ async def seed_expenses(session: AsyncSession):
 
 
 async def seed_work_orders(session: AsyncSession):
-    mechanic = await session.scalar(select(User).where(User.email == "mechanic@example.com"))
-    admin = await session.scalar(select(User).where(User.email == "admin@admin.com"))
+    mechanic_id = await session.scalar(select(User.id).where(User.email == "mechanic@example.com"))
+    admin_id = await session.scalar(select(User.id).where(User.email == "admin@admin.com"))
 
     orders = [
         {
             "id": 1,
             "truck_id": 1,
             "status_id": 1,
-            "reviewed_by": admin.id if admin else None,
+            "reviewed_by": admin_id,
             "notes": "Revision general",
         },
         {
             "id": 2,
             "truck_id": 2,
             "status_id": 2,
-            "reviewed_by": admin.id if admin else None,
+            "reviewed_by": admin_id,
             "notes": "Cambio de aceite",
         },
     ]
@@ -144,7 +144,7 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 1,
             "work_order_id": 1,
-            "user_id": mechanic.id if mechanic else admin.id if admin else None,
+            "user_id": mechanic_id or admin_id,
             "description": "Cambio de filtro",
             "area_id": 1,
             "price": 50.0,
@@ -153,7 +153,7 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 2,
             "work_order_id": 2,
-            "user_id": mechanic.id if mechanic else admin.id if admin else None,
+            "user_id": mechanic_id or admin_id,
             "description": "Alineacion",
             "area_id": 2,
             "price": 100.0,
@@ -196,14 +196,14 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 1,
             "work_order_id": 1,
-            "user_id": mechanic.id if mechanic else admin.id if admin else None,
+            "user_id": mechanic_id or admin_id or None,
             "area_id": 1,
             "notes": "Inicio",
         },
         {
             "id": 2,
             "work_order_id": 2,
-            "user_id": mechanic.id if mechanic else admin.id if admin else None,
+            "user_id": mechanic_id or admin_id or None,
             "area_id": 2,
             "notes": "Inicio",
         },
