@@ -35,6 +35,9 @@ docker compose -f docker-compose.dev.yml up --build
 ```
 
 Este modo monta el código como volumen y ejecuta la API con `--reload`.
+Al iniciar el contenedor se ejecuta `scripts/dev_seed.py` si la variable
+de entorno `DEV_SEED` vale `1`, cargando datos de ejemplo en todas las
+tablas para poder probar cualquier endpoint.
 
 ### Modo producción
 

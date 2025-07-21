@@ -15,5 +15,8 @@ fi
 python -m scripts.wait_for_db
 alembic upgrade head
 python -m scripts.init_db
+if [ "$DEV_SEED" = "1" ]; then
+    python -m scripts.dev_seed
+fi
 
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000 "$@"
