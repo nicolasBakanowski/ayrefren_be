@@ -24,13 +24,20 @@ class InvoicesRepository:
     async def get(self, id: int) -> Invoice | None:
         result = await self.db.execute(
             select(Invoice)
-            .options(selectinload(Invoice.invoice_type))
+            .options(
+                selectinload(Invoice.invoice_type),
+                selectinload(Invoice.client)
+            )
             .where(Invoice.id == id)
         )
         return result.scalar_one_or_none()
 
     async def list(self) -> list[Invoice]:
-        result = await self.db.execute(select(Invoice))
+        result = await self.db.execute(
+            select(Invoice).options(
+                selectinload(Invoice.client),
+            )
+        )
         return result.scalars().all()
 
 

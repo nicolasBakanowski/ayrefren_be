@@ -6,6 +6,7 @@ class User(BaseModel):
     email: str
     role_id: int
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str

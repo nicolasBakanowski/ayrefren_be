@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,8 +6,8 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.models.users import User
-from app.schemas.users import ChangePasswordSchema, UserCreate, UserOut
 from app.schemas.response import ResponseSchema
+from app.schemas.users import ChangePasswordSchema, UserCreate, UserOut
 from app.services.users import UsersService
 
 users_router = APIRouter()

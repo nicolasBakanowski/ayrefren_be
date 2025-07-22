@@ -5,17 +5,19 @@ from app.constants.roles import ADMIN, MECHANIC, REVISOR
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
+from app.schemas.response import ResponseSchema
 from app.schemas.work_orders_mechanic import (
     WorkOrderMechanicCreate,
     WorkOrderMechanicOut,
 )
 from app.services.work_orders_mechanic import WorkOrdersMechanicService
-from app.schemas.response import ResponseSchema
 
 work_orders_mechanic_router = APIRouter()
 
 
-@work_orders_mechanic_router.post("/", response_model=ResponseSchema[WorkOrderMechanicOut])
+@work_orders_mechanic_router.post(
+    "/", response_model=ResponseSchema[WorkOrderMechanicOut]
+)
 async def assign_mechanic(
     mechanic_in: WorkOrderMechanicCreate,
     db: AsyncSession = Depends(get_db),
