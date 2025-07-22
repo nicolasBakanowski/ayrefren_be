@@ -44,6 +44,11 @@ class InvoiceCreate(BaseModel):
     invoice_number: Optional[str] = None
 
 
+class InvoiceUpdate(BaseModel):
+    status_id: Optional[int] = None
+    invoice_type_id: Optional[int] = None
+
+
 class InvoiceOut(InvoiceCreate):
     id: int
     issued_at: datetime

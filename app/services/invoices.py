@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.validators import validate_foreign_keys
+from app.core.validators import exists_or_404, validate_foreign_keys
 from app.db.repositories.invoices import InvoicesRepository, PaymentsRepository
 from app.models.clients import Client
 from app.models.invoices import (
@@ -16,6 +16,7 @@ from app.schemas.invoices import (
     BankCheckExchange,
     InvoiceCreate,
     InvoiceOut,
+    InvoiceUpdate,
     PaymentCreate,
 )
 from app.services.notifications import NotificationService
@@ -63,6 +64,19 @@ class InvoicesService:
 
     async def list(self):
         return await self.repo.list()
+
+    async def update(self, invoice_id: int, data: InvoiceUpdate):
+        await exists_or_404(self.repo.db, Invoice, invoice_id)
+        if data.status_id is not None:
+            await exists_or_404(self.repo.db, InvoiceStatus, data.status_id)
+
+        if data.invoice_type_id is not None:
+            await exists_or_404(self.repo.db, InvoiceType, data.invoice_type_id)
+
+        invoice = await self.repo.update(invoice_id, data)
+        if not invoice:
+            raise HTTPException(404, detail="Factura no encontrada")
+        return _invoice_with_surcharge(invoice)
 
 
 class PaymentsService:

@@ -11,6 +11,7 @@ from app.schemas.invoices import (
     InvoiceCreate,
     InvoiceDetailOut,
     InvoiceOut,
+    InvoiceUpdate,
     PaymentCreate,
     PaymentMethodOut,
     PaymentOut,
@@ -126,4 +127,16 @@ async def get_invoice(
 ):
     service = InvoicesService(db)
     data = await service.get(invoice_id)
+    return success_response(data=data)
+
+
+@invoice_router.put("/{invoice_id}", response_model=ResponseSchema[InvoiceOut])
+async def update_invoice(
+    invoice_id: int,
+    invoice_in: InvoiceUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = InvoicesService(db)
+    data = await service.update(invoice_id, invoice_in)
     return success_response(data=data)

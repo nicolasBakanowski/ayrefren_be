@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.invoices import BankCheck, Invoice, Payment, PaymentMethod
 from app.models.work_orders import WorkOrder
-from app.schemas.invoices import InvoiceCreate, PaymentCreate
+from app.schemas.invoices import InvoiceCreate, InvoiceUpdate, PaymentCreate
 
 
 class InvoicesRepository:
@@ -24,7 +24,11 @@ class InvoicesRepository:
     async def get(self, id: int) -> Invoice | None:
         result = await self.db.execute(
             select(Invoice)
-            .options(selectinload(Invoice.invoice_type), selectinload(Invoice.client))
+            .options(
+                selectinload(Invoice.invoice_type),
+                selectinload(Invoice.client),
+                selectinload(Invoice.status),
+            )
             .where(Invoice.id == id)
         )
         return result.scalar_one_or_none()
@@ -38,6 +42,18 @@ class InvoicesRepository:
             )
         )
         return result.scalars().all()
+
+    async def update(self, id: int, data: InvoiceUpdate) -> Invoice:
+        invoice = await self.get(id)
+        if not invoice:
+            return False
+
+        data = data.model_dump(exclude_unset=True)
+        for key, value in data.items():
+            setattr(invoice, key, value)
+        await self.db.commit()
+        await self.db.refresh(invoice)
+        return invoice
 
 
 class PaymentsRepository:
