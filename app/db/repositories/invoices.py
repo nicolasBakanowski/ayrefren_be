@@ -24,10 +24,7 @@ class InvoicesRepository:
     async def get(self, id: int) -> Invoice | None:
         result = await self.db.execute(
             select(Invoice)
-            .options(
-                selectinload(Invoice.invoice_type),
-                selectinload(Invoice.client)
-            )
+            .options(selectinload(Invoice.invoice_type), selectinload(Invoice.client))
             .where(Invoice.id == id)
         )
         return result.scalar_one_or_none()
@@ -36,6 +33,8 @@ class InvoicesRepository:
         result = await self.db.execute(
             select(Invoice).options(
                 selectinload(Invoice.client),
+                selectinload(Invoice.invoice_type),
+                selectinload(Invoice.status),
             )
         )
         return result.scalars().all()
