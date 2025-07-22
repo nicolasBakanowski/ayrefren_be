@@ -115,8 +115,12 @@ async def seed_expenses(session: AsyncSession):
 
 
 async def seed_work_orders(session: AsyncSession):
-    mechanic_id = await session.scalar(select(User.id).where(User.email == "mechanic@example.com"))
-    admin_id = await session.scalar(select(User.id).where(User.email == "admin@admin.com"))
+    mechanic_id = await session.scalar(
+        select(User.id).where(User.email == "mechanic@example.com")
+    )
+    admin_id = await session.scalar(
+        select(User.id).where(User.email == "admin@admin.com")
+    )
 
     orders = [
         {
@@ -135,7 +139,9 @@ async def seed_work_orders(session: AsyncSession):
         },
     ]
     for data in orders:
-        result = await session.execute(select(WorkOrder).where(WorkOrder.id == data["id"]))
+        result = await session.execute(
+            select(WorkOrder).where(WorkOrder.id == data["id"])
+        )
         if not result.scalars().first():
             session.add(WorkOrder(**data))
     await session.commit()
@@ -161,7 +167,9 @@ async def seed_work_orders(session: AsyncSession):
         },
     ]
     for data in tasks:
-        result = await session.execute(select(WorkOrderTask).where(WorkOrderTask.id == data["id"]))
+        result = await session.execute(
+            select(WorkOrderTask).where(WorkOrderTask.id == data["id"])
+        )
         if not result.scalars().first():
             session.add(WorkOrderTask(**data))
     await session.commit()
@@ -187,7 +195,9 @@ async def seed_work_orders(session: AsyncSession):
         },
     ]
     for data in parts:
-        result = await session.execute(select(WorkOrderPart).where(WorkOrderPart.id == data["id"]))
+        result = await session.execute(
+            select(WorkOrderPart).where(WorkOrderPart.id == data["id"])
+        )
         if not result.scalars().first():
             session.add(WorkOrderPart(**data))
     await session.commit()
@@ -209,7 +219,9 @@ async def seed_work_orders(session: AsyncSession):
         },
     ]
     for data in mechanics:
-        result = await session.execute(select(WorkOrderMechanic).where(WorkOrderMechanic.id == data["id"]))
+        result = await session.execute(
+            select(WorkOrderMechanic).where(WorkOrderMechanic.id == data["id"])
+        )
         if not result.scalars().first():
             session.add(WorkOrderMechanic(**data))
     await session.commit()

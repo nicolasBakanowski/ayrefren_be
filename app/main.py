@@ -6,8 +6,8 @@ from app.constants.response_codes import ResponseCode
 from app.routers import (
     auth_router,
     clients_router,
-    invoice_router,
     expenses_router,
+    invoice_router,
     parts_router,
     reports_router,
     trucks_router,

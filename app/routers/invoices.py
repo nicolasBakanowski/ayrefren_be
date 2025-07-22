@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -68,7 +66,9 @@ async def register_payment(
     return success_response(data=data)
 
 
-@invoice_router.post("/bank-checks/{check_id}/exchange", response_model=ResponseSchema[BankCheckOut])
+@invoice_router.post(
+    "/bank-checks/{check_id}/exchange", response_model=ResponseSchema[BankCheckOut]
+)
 async def exchange_bank_check(
     check_id: int,
     exchange_in: BankCheckExchange,
