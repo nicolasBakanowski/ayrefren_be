@@ -28,3 +28,18 @@ async def login(
             },
         }
     )
+
+
+@auth_router.post("/token", response_model=Token, include_in_schema=False)
+async def login_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    service = AuthService(db)
+    user = await service.authenticate_user(form_data.username, form_data.password)
+    access_token = service.login_token(user)
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {"email": user.email, "role_id": user.role_id},
+    }

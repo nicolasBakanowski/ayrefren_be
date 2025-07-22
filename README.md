@@ -108,3 +108,14 @@ El cuerpo sigue el esquema:
 
 En caso de error, `success` es `false` y `code` contiene el código
 correspondiente (por ejemplo 404 cuando un recurso no existe).
+
+## Uso de la documentación interactiva
+
+El esquema OAuth2 está configurado con el endpoint `POST /auth/token`.  En la
+parte superior de Swagger UI presioná **Authorize**, ingresá tus credenciales y
+obtené automáticamente el `access_token` para las siguientes peticiones.
+
+Si preferís hacerlo manualmente podés llamar a `POST /auth/login`, copiar el
+valor del campo `access_token` de la respuesta y proporcionarlo en el diálogo de
+autorización como `Bearer <token>`.  De lo contrario la documentación enviará
+el header `Authorization: Bearer undefined` y verás un `401 Token inválido`.
