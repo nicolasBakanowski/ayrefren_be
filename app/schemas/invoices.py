@@ -4,7 +4,32 @@ from typing import Optional
 from pydantic import BaseModel
 
 from app.models.invoices import BankCheckType
+
 from .clients import ClientOut
+
+
+class InvoiceTypeBase(BaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
+class InvoiceTypeFull(InvoiceTypeBase):
+    id: int
+    name: str
+    surcharge: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+
+class InvoiceStatus(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
 
 
 class InvoiceCreate(BaseModel):
@@ -24,6 +49,8 @@ class InvoiceOut(InvoiceCreate):
     issued_at: datetime
     paid: float
     client: ClientOut
+    status: InvoiceStatus
+    invoice_type: InvoiceTypeFull
 
     class Config:
         from_attributes = True
