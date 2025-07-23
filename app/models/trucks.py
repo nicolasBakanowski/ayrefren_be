@@ -13,6 +13,5 @@ class Truck(Base):
     license_plate = Column(String(20), unique=True, nullable=False)
     brand = Column(String(50))
     model = Column(String(50))
-    year = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     client = relationship("Client")

@@ -10,7 +10,12 @@ def test_create_order_invalid_truck(client):
     http, _ = client
     resp = http.post(
         "/orders/",
-        json={"truck_id": -1, "status_id": -1, "notes": "Test order"},
+        json={
+            "truck_id": -1,
+            "status_id": -1,
+            "notes": "Test order",
+            "fast_phone": "1234567890",
+        },
     )
     assert resp.status_code == 200
     data = resp.json()
@@ -223,7 +228,6 @@ def test_order_total_with_increments(client):
     async def seed_data():
         async with session_factory() as session:
             from app.models.clients import Client, ClientType
-            from app.models.parts import Part
             from app.models.trucks import Truck
             from app.models.users import Role, User
             from app.models.work_order_parts import WorkOrderPart
@@ -242,8 +246,7 @@ def test_order_total_with_increments(client):
 
             truck = Truck(client_id=cli.id, license_plate="TOT111")
             status = WorkOrderStatus(name="open")
-            part = Part(name="Bolt", description="", price=10)
-            session.add_all([truck, status, part])
+            session.add_all([truck, status])
             await session.flush()
 
             order = WorkOrder(truck_id=truck.id, status_id=status.id)
@@ -252,7 +255,7 @@ def test_order_total_with_increments(client):
 
             wop = WorkOrderPart(
                 work_order_id=order.id,
-                part_id=part.id,
+                name="part.id",
                 quantity=2,
                 unit_price=10,
                 subtotal=20,
@@ -275,5 +278,4 @@ def test_order_total_with_increments(client):
     resp = http.get(f"/orders/{order_id}/total")
 
     assert resp.status_code == 200
-    # 2 parts * 10 + 10% = 22; plus task 30 => 52
     assert resp.json()["data"]["total"] == 52

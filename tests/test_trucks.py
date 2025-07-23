@@ -10,7 +10,6 @@ def test_create_truck_invalid_client(client):
             "license_plate": "ABC123",
             "brand": "Ford",
             "model": "F-150",
-            "year": 2020,
         },
     )
     assert resp.status_code == 200
@@ -41,7 +40,6 @@ def test_truck_crud_flow(client):
             "license_plate": "XYZ123",
             "brand": "Volvo",
             "model": "FH",
-            "year": 2024,
         },
     )
     assert resp.status_code == 200

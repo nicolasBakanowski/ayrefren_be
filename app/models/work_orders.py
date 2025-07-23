@@ -23,6 +23,7 @@ class WorkOrder(Base):
     status_id = Column(Integer, ForeignKey("work_order_statuses.id"))
     reviewed_by = Column(Integer, ForeignKey("users.id"))
     notes = Column(Text)
+    fast_phone = Column(Text, nullable=True)
 
     status = relationship("WorkOrderStatus")
     truck = relationship("Truck")

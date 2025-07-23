@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
-from app.models import WorkOrderPart
 from app.models.trucks import Truck
 from app.models.work_orders import WorkOrder
 
@@ -27,7 +26,7 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.reviewer),
                 selectinload(WorkOrder.mechanics),
                 selectinload(WorkOrder.tasks),
-                selectinload(WorkOrder.parts).selectinload(WorkOrderPart.part),
+                selectinload(WorkOrder.parts),
             )
             .where(WorkOrder.id == work_order_id)
         )
@@ -41,7 +40,7 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.reviewer),
                 selectinload(WorkOrder.mechanics),
                 selectinload(WorkOrder.tasks),
-                selectinload(WorkOrder.parts).selectinload(WorkOrderPart.part),
+                selectinload(WorkOrder.parts),
             )
         )
         return result.scalars().all()

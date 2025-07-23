@@ -28,6 +28,7 @@ class InvoicesRepository:
                 selectinload(Invoice.invoice_type),
                 selectinload(Invoice.client),
                 selectinload(Invoice.status),
+                selectinload(Invoice.payments),
             )
             .where(Invoice.id == id)
         )

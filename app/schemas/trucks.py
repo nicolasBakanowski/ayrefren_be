@@ -1,8 +1,7 @@
-# app/schemas/truck.py
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, conint, constr
+from pydantic import BaseModel, constr
 
 from app.schemas.clients import ClientOut
 
@@ -12,7 +11,6 @@ class TruckBase(BaseModel):
     license_plate: constr(min_length=1, max_length=20)
     brand: constr(max_length=50) | None = None
     model: constr(max_length=50) | None = None
-    year: conint(gt=1900, lt=2100) | None = None
 
 
 class TruckCreate(TruckBase):
@@ -23,7 +21,6 @@ class TruckUpdate(BaseModel):
     license_plate: constr(min_length=1, max_length=20) | None = None
     brand: constr(max_length=50) | None = None
     model: constr(max_length=50) | None = None
-    year: conint(gt=1900, lt=2100) | None = None
 
 
 class TruckInDB(TruckBase):

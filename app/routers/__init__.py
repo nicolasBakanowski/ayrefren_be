@@ -2,7 +2,6 @@ from .auth import auth_router
 from .clients import clients_router
 from .expenses import expenses_router
 from .invoices import invoice_router
-from .parts import parts_router
 from .reports import reports_router
 from .trucks import trucks_router
 from .users import users_router
@@ -23,7 +22,6 @@ __all__ = [
     "reports_router",
     "trucks_router",
     "auth_router",
-    "parts_router",
     "expenses_router",
     "work_orders_reviewer_router",
 ]

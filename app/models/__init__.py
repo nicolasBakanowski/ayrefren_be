@@ -1,7 +1,6 @@
 from .clients import Client, ClientType
 from .expense import Expense, ExpenseType
 from .invoices import Invoice, InvoiceStatus, InvoiceType, Payment, PaymentMethod
-from .parts import Part
 from .trucks import Truck
 from .users import Role, User
 from .work_order_parts import WorkOrderPart
@@ -27,6 +26,5 @@ __all__ = [
     "InvoiceStatus",
     "PaymentMethod",
     "Truck",
-    "Part",
     "Role",
 ]

@@ -56,6 +56,7 @@ class InvoiceOut(InvoiceCreate):
     client: ClientOut
     status: InvoiceStatus
     invoice_type: InvoiceTypeFull
+    payments: list["PaymentOut"] | None = None
 
     class Config:
         from_attributes = True

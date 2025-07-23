@@ -46,6 +46,7 @@ class WorkOrderOut(WorkOrderBase):
     mechanics: List[WorkOrderMechanicOut] = []
     reviewer: Optional[UserOut] = None
     parts: List[WorkOrderPartOut] = []
+    fast_phone: Optional[str] = None
 
     class Config:
         from_attributes = True
