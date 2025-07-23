@@ -16,6 +16,7 @@ class WorkOrderBase(BaseModel):
     status_id: int
     reviewed_by: Optional[int] = None
     notes: Optional[str] = None
+    fast_phone: Optional[str] = None
 
 
 class WorkOrderCreate(WorkOrderBase):
