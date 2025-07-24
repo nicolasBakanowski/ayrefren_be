@@ -176,7 +176,7 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 1,
             "work_order_id": 1,
-            "part_id": 1,
+            "name": "Filtro de aire",
             "quantity": 1,
             "unit_price": 80.0,
             "increment_per_unit": 1,
@@ -185,7 +185,7 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 2,
             "work_order_id": 2,
-            "part_id": 2,
+            "name": "Aceite de motor",
             "quantity": 2,
             "unit_price": 40.0,
             "increment_per_unit": 1,
