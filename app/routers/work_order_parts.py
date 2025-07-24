@@ -23,6 +23,19 @@ async def add_part(
     return success_response(data=data)
 
 
+# ✅ ESTE ENDPOINT VA PRIMERO (evita que "names" sea interpretado como ID)
+@work_order_parts_router.get("/names", response_model=ResponseSchema[list[str]])
+async def list_part_names(
+    work_order_id: int | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderPartsService(db)
+    data = await service.list_part_names(work_order_id)
+    return success_response(data=data)
+
+
+# ⛔ ESTE DEBE IR DESPUÉS PARA NO CAPTURAR "names"
 @work_order_parts_router.get(
     "/{work_order_id}", response_model=ResponseSchema[list[WorkOrderPartOut]]
 )
@@ -33,17 +46,6 @@ async def list_parts(
 ):
     service = WorkOrderPartsService(db)
     data = await service.list_parts(work_order_id)
-    return success_response(data=data)
-
-
-@work_order_parts_router.get("/names", response_model=ResponseSchema[list[str]])
-async def list_part_names(
-    work_order_id: int | None = None,
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
-):
-    service = WorkOrderPartsService(db)
-    data = await service.list_part_names(work_order_id)
     return success_response(data=data)
 
 

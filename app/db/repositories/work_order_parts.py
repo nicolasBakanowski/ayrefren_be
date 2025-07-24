@@ -25,17 +25,15 @@ class WorkOrderPartsRepository:
         )
         return result.scalars().all()
 
+   
     async def list_names(self, work_order_id: int | None = None) -> list[str]:
-        query = select(WorkOrderPart.name)
+        stmt = select(WorkOrderPart.name).distinct().order_by(WorkOrderPart.name)
         if work_order_id is not None:
-            query = query.where(WorkOrderPart.work_order_id == work_order_id)
-
-        result = await self.db.execute(query)
-
-        # Ensure uniqueness even if duplicates slip through
-        names = {row[0] for row in result.all()}
-        return list(names)
-
+            stmt = stmt.where(WorkOrderPart.work_order_id == work_order_id)
+        result = await self.db.execute(stmt)
+        names = [name for (name,) in result.all() if name is not None]
+        return names
+    
     async def delete(self, part_id: int) -> bool:
         part = await self.db.get(WorkOrderPart, part_id)
         if not part:
