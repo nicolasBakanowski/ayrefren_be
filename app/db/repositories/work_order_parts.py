@@ -25,6 +25,14 @@ class WorkOrderPartsRepository:
         )
         return result.scalars().all()
 
+    async def list_names_by_work_order(self, work_order_id: int) -> list[str]:
+        result = await self.db.execute(
+            select(WorkOrderPart.name)
+            .where(WorkOrderPart.work_order_id == work_order_id)
+            .distinct()
+        )
+        return [row[0] for row in result.all()]
+
     async def delete(self, part_id: int) -> bool:
         part = await self.db.get(WorkOrderPart, part_id)
         if not part:

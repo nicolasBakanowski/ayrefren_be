@@ -36,6 +36,19 @@ async def list_parts(
     return success_response(data=data)
 
 
+@work_order_parts_router.get(
+    "/names/{work_order_id}", response_model=ResponseSchema[list[str]]
+)
+async def list_part_names(
+    work_order_id: int = Path(..., gt=0),
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderPartsService(db)
+    data = await service.list_part_names(work_order_id)
+    return success_response(data=data)
+
+
 @work_order_parts_router.delete("/{part_id}")
 async def remove_part(
     part_id: int = Path(..., gt=0),
