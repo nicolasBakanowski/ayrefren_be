@@ -43,7 +43,6 @@ class TrucksRepository:
         license_plate: str = None,
         brand: str = None,
         model: int = None,
-        year: int = None,
     ):
         filters = []
 
@@ -57,8 +56,6 @@ class TrucksRepository:
             filters.append(Truck.brand.ilike(f"%{brand}%"))
         if model is not None:
             filters.append(Truck.model == model)
-        if year is not None:
-            filters.append(Truck.year == year)
 
         query = select(Truck).options(selectinload(Truck.client))
         if filters:
