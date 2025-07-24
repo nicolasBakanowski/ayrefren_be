@@ -29,9 +29,10 @@ class WorkOrderPartsRepository:
         result = await self.db.execute(
             select(WorkOrderPart.name)
             .where(WorkOrderPart.work_order_id == work_order_id)
-            .distinct()
         )
-        return [row[0] for row in result.all()]
+        # Ensure uniqueness even if duplicates slip through
+        names = {row[0] for row in result.all()}
+        return list(names)
 
     async def delete(self, part_id: int) -> bool:
         part = await self.db.get(WorkOrderPart, part_id)
