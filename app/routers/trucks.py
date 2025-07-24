@@ -18,7 +18,6 @@ async def list_trucks(
     license_plate: str = None,
     brand: str = None,
     model: str = None,
-    year: int = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
@@ -29,7 +28,6 @@ async def list_trucks(
         license_plate=license_plate,
         brand=brand,
         model=model,
-        year=year,
     )
     return success_response(data=data)
 

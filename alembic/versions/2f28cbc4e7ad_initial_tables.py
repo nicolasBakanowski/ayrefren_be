@@ -99,7 +99,6 @@ def upgrade() -> None:
         sa.Column("license_plate", sa.String(length=20), nullable=False),
         sa.Column("brand", sa.String(length=50), nullable=True),
         sa.Column("model", sa.String(length=50), nullable=True),
-        sa.Column("year", sa.Integer(), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),

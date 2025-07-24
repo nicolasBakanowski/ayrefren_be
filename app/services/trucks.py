@@ -49,14 +49,12 @@ class TrucksService:
         license_plate: str = None,
         brand: str = None,
         model: int = None,
-        year: int = None,
     ) -> List[Truck]:
         trucks = await self.repo.list_all(
             client_id=client_id,
             license_plate=license_plate,
             brand=brand,
             model=model,
-            year=year,
         )
         if not trucks:
             raise HTTPException(
