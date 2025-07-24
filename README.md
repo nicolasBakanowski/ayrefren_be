@@ -88,6 +88,10 @@ docker compose -f docker-compose.dev.yml run --rm web \
 
 La API expone el endpoint `GET /orders/{id}/total` que suma el costo de las tareas registradas y los repuestos utilizados (aplicando el incremento porcentual de cada pieza). Esto permite conocer el monto a facturar por una reparación antes de emitir la factura.
 
+## Listar nombres de repuestos
+
+Para poblar un selector con los repuestos que se han cargado en distintas órdenes se puede usar `GET /work-orders/parts/names`. Este endpoint devuelve una lista sin duplicados. Opcionalmente se puede filtrar por una orden específica pasando `work_order_id` como parámetro de consulta.
+
 ## Detalle de facturas con recargo
 
 Cuando un tipo de factura define un recargo porcentual, el endpoint `GET /invoices/{id}/detail` devuelve el total original junto con el total con dicho recargo aplicado. Así el frontend puede mostrar ambos valores y elegir cuál cobrar.

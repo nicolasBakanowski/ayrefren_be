@@ -21,8 +21,8 @@ class WorkOrderPartsService:
     async def list_parts(self, work_order_id: int):
         return await self.repo.list_by_work_order(work_order_id)
 
-    async def list_part_names(self, work_order_id: int) -> list[str]:
-        return await self.repo.list_names_by_work_order(work_order_id)
+    async def list_part_names(self, work_order_id: int | None = None) -> list[str]:
+        return await self.repo.list_names(work_order_id)
 
     async def delete_part(self, part_id: int):
         deleted = await self.repo.delete(part_id)

@@ -36,11 +36,9 @@ async def list_parts(
     return success_response(data=data)
 
 
-@work_order_parts_router.get(
-    "/names/{work_order_id}", response_model=ResponseSchema[list[str]]
-)
+@work_order_parts_router.get("/names", response_model=ResponseSchema[list[str]])
 async def list_part_names(
-    work_order_id: int = Path(..., gt=0),
+    work_order_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
