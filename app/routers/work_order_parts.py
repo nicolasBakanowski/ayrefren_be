@@ -12,6 +12,16 @@ from app.services.work_order_parts import WorkOrderPartsService
 work_order_parts_router = APIRouter()
 
 
+@work_order_parts_router.get("/names", response_model=ResponseSchema[list[str]])
+async def list_names(
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderPartsService(db)
+    data = await service.list_names()
+    return success_response(data=data)
+
+
 @work_order_parts_router.post("/", response_model=ResponseSchema[WorkOrderPartOut])
 async def add_part(
     part_in: WorkOrderPartCreate,
