@@ -26,3 +26,6 @@ class WorkOrderPartsService:
         if not deleted:
             raise HTTPException(status_code=404, detail="Repuesto no encontrado")
         return {"detail": "Repuesto eliminado"}
+
+    async def list_names(self):
+        return await self.repo.list_names()

@@ -41,3 +41,7 @@ class WorkOrderPartsRepository:
         )
 
         return result.scalar_one_or_none()
+
+    async def list_names(self) -> list[str]:
+        result = await self.db.execute(select(WorkOrderPart.name))
+        return [row[0] for row in result.fetchall()]
