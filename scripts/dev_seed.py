@@ -80,7 +80,6 @@ async def seed_clients_and_trucks(session: AsyncSession):
             "license_plate": "AAA111",
             "brand": "Ford",
             "model": "F100",
-            "year": 2010,
         },
         {
             "id": 2,
@@ -88,7 +87,6 @@ async def seed_clients_and_trucks(session: AsyncSession):
             "license_plate": "BBB222",
             "brand": "Iveco",
             "model": "Stralis",
-            "year": 2015,
         },
     ]
     for data in trucks:
@@ -178,7 +176,7 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 1,
             "work_order_id": 1,
-            "part_id": 1,
+            "name": "Filtro aceite",
             "quantity": 1,
             "unit_price": 80.0,
             "increment_per_unit": 1,
@@ -187,7 +185,7 @@ async def seed_work_orders(session: AsyncSession):
         {
             "id": 2,
             "work_order_id": 2,
-            "part_id": 2,
+            "name": "Bujia",
             "quantity": 2,
             "unit_price": 40.0,
             "increment_per_unit": 1,

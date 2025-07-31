@@ -78,6 +78,12 @@ class InvoicesService:
             raise HTTPException(404, detail="Factura no encontrada")
         return _invoice_with_surcharge(invoice)
 
+    async def mark_as_accepted(self, invoice_id: int):
+        invoice = await self.repo.mark_as_accepted(invoice_id)
+        if not invoice:
+            raise HTTPException(404, detail="Factura no encontrada")
+        return _invoice_with_surcharge(invoice)
+
 
 class PaymentsService:
     def __init__(self, db: AsyncSession):
