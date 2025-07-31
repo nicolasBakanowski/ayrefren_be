@@ -80,7 +80,6 @@ async def seed_clients_and_trucks(session: AsyncSession):
             "license_plate": "AAA111",
             "brand": "Ford",
             "model": "F100",
-            "year": 2010,
         },
         {
             "id": 2,
@@ -88,7 +87,6 @@ async def seed_clients_and_trucks(session: AsyncSession):
             "license_plate": "BBB222",
             "brand": "Iveco",
             "model": "Stralis",
-            "year": 2015,
         },
     ]
     for data in trucks:
