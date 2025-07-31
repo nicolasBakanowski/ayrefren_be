@@ -57,13 +57,14 @@ class InvoicesRepository:
         return invoice
 
     async def mark_as_accepted(self, invoice_id: int) -> Invoice | None:
+        """Mark invoice as accepted and return it with relationships loaded."""
         invoice = await self.db.get(Invoice, invoice_id)
         if not invoice:
             return None
         invoice.accepted = True
         await self.db.commit()
-        await self.db.refresh(invoice)
-        return invoice
+        # reload with eager relationships to avoid lazy loading later
+        return await self.get(invoice_id)
 
 
 class PaymentsRepository:
