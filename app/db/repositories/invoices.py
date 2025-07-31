@@ -56,6 +56,15 @@ class InvoicesRepository:
         await self.db.refresh(invoice)
         return invoice
 
+    async def mark_as_accepted(self, invoice_id: int) -> Invoice | None:
+        invoice = await self.db.get(Invoice, invoice_id)
+        if not invoice:
+            return None
+        invoice.accepted = True
+        await self.db.commit()
+        await self.db.refresh(invoice)
+        return invoice
+
 
 class PaymentsRepository:
     def __init__(self, db: AsyncSession):

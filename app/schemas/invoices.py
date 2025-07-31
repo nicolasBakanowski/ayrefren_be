@@ -53,6 +53,7 @@ class InvoiceOut(InvoiceCreate):
     id: int
     issued_at: datetime
     paid: float
+    accepted: bool
     client: ClientOut
     status: InvoiceStatus
     invoice_type: InvoiceTypeFull

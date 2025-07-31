@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import relationship
@@ -37,6 +37,7 @@ class Invoice(Base):
     issued_at = Column(DateTime, default=datetime.utcnow)
     paid = Column(Numeric(10, 2), default=0)
     invoice_number = Column(String(30), nullable=True)
+    accepted = Column(Boolean, default=False)
 
     work_order = relationship("WorkOrder")
     client = relationship("Client")

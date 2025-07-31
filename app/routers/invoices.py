@@ -140,3 +140,16 @@ async def update_invoice(
     service = InvoicesService(db)
     data = await service.update(invoice_id, invoice_in)
     return success_response(data=data)
+
+
+@invoice_router.post(
+    "/{invoice_id}/accept", response_model=ResponseSchema[InvoiceOut]
+)
+async def accept_invoice(
+    invoice_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = InvoicesService(db)
+    data = await service.mark_as_accepted(invoice_id)
+    return success_response(data=data)
