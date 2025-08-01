@@ -136,3 +136,15 @@ class PaymentsRepository:
         await self.db.commit()
         await self.db.refresh(check)
         return check
+
+    async def list(
+        self, client_id: int | None = None, invoice_id: int | None = None
+    ) -> list[Payment]:
+        """Return payments filtered by client and/or invoice."""
+        query = select(Payment).options(selectinload(Payment.bank_checks))
+        if client_id is not None:
+            query = query.join(Payment.invoice).where(Invoice.client_id == client_id)
+        if invoice_id is not None:
+            query = query.where(Payment.invoice_id == invoice_id)
+        result = await self.db.execute(query)
+        return result.scalars().all()

@@ -67,6 +67,18 @@ async def register_payment(
     return success_response(data=data)
 
 
+@invoice_router.get("/payments/", response_model=ResponseSchema[list[PaymentOut]])
+async def search_payments(
+    client_id: int | None = None,
+    invoice_id: int | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = PaymentsService(db)
+    data = await service.list(client_id=client_id, invoice_id=invoice_id)
+    return success_response(data=data)
+
+
 @invoice_router.post(
     "/bank-checks/{check_id}/exchange", response_model=ResponseSchema[BankCheckOut]
 )
@@ -142,9 +154,7 @@ async def update_invoice(
     return success_response(data=data)
 
 
-@invoice_router.post(
-    "/{invoice_id}/accept", response_model=ResponseSchema[InvoiceOut]
-)
+@invoice_router.post("/{invoice_id}/accept", response_model=ResponseSchema[InvoiceOut])
 async def accept_invoice(
     invoice_id: int,
     db: AsyncSession = Depends(get_db),
