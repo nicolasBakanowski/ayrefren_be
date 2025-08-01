@@ -72,15 +72,6 @@ class PaymentCreate(BaseModel):
     bank_checks: Optional[list["BankCheckIn"]] = None
 
 
-class PaymentOut(PaymentCreate):
-    id: int
-    date: datetime
-    bank_checks: list["BankCheckOut"] | None
-
-    class Config:
-        from_attributes = True
-
-
 class BankCheckIn(BaseModel):
     bank_name: str
     check_number: str
@@ -114,3 +105,13 @@ class InvoiceDetailOut(InvoiceOut):
     surcharge: float
     total_without_surcharge: float
     total_with_surcharge: float
+
+
+class PaymentOut(PaymentCreate):
+    id: int
+    date: datetime
+    bank_checks: list[BankCheckOut] | None
+    method: PaymentMethodOut
+
+    class Config:
+        from_attributes = True
