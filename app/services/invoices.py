@@ -9,6 +9,7 @@ from app.models.invoices import (
     Invoice,
     InvoiceStatus,
     InvoiceType,
+    Payment,
     PaymentMethod,
 )
 from app.models.work_orders import WorkOrder
@@ -103,6 +104,11 @@ class PaymentsService:
 
     async def list_by_invoice(self, invoice_id: int):
         return await self.repo.list_by_invoice(invoice_id)
+
+    async def list(
+        self, client_id: int | None = None, invoice_id: int | None = None
+    ) -> list[Payment]:
+        return await self.repo.list(client_id=client_id, invoice_id=invoice_id)
 
     async def total_by_invoice(self, invoice_id: int) -> float:
         return await self.repo.total_by_invoice(invoice_id)

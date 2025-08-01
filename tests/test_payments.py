@@ -44,6 +44,15 @@ def _seed_invoice(session_factory):
     return asyncio.run(run())
 
 
+def _get_client_id(session_factory, invoice_id: int) -> int:
+    async def run():
+        async with session_factory() as session:
+            invoice = await session.get(Invoice, invoice_id)
+            return invoice.client_id
+
+    return asyncio.run(run())
+
+
 def test_list_payment_methods(client):
     http, session_factory = client
 
@@ -158,3 +167,36 @@ def test_exchange_bank_check(client):
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert data["exchange_date"].startswith("2023-01-10")
+
+
+def test_list_payments_by_client(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+    client_id = _get_client_id(session_factory, invoice_id)
+
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_id, "amount": 50},
+    )
+
+    resp = http.get("/invoices/payments/", params={"client_id": client_id})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["invoice_id"] == invoice_id
+
+
+def test_list_payments_by_invoice_query(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_id, "amount": 80},
+    )
+
+    resp = http.get("/invoices/payments/", params={"invoice_id": invoice_id})
+    assert resp.status_code == 200
+    payments = resp.json()["data"]
+    assert len(payments) == 1
+    assert payments[0]["invoice_id"] == invoice_id
