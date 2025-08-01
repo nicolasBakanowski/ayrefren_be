@@ -28,7 +28,7 @@ class InvoicesRepository:
                 selectinload(Invoice.invoice_type),
                 selectinload(Invoice.client),
                 selectinload(Invoice.status),
-                selectinload(Invoice.payments),
+                selectinload(Invoice.payments).selectinload(Payment.bank_checks),
             )
             .where(Invoice.id == id)
         )
