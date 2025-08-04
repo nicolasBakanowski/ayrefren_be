@@ -1,7 +1,8 @@
 import asyncio
-from datetime import datetime
+from datetime import date, datetime
 
 from app.models.clients import Client, ClientType
+from app.models.expense import Expense, ExpenseType
 from app.models.invoices import (
     Invoice,
     InvoiceStatus,
@@ -72,7 +73,15 @@ def _seed_data(session_factory):
                 amount=200,
                 date=datetime(2024, 2, 20),
             )
-            session.add_all([payment1, payment2])
+
+            et1 = ExpenseType(name="Sueldo")
+            et2 = ExpenseType(name="Alquiler")
+            session.add_all([et1, et2])
+            await session.flush()
+            expense1 = Expense(date=date(2024, 1, 5), amount=50, expense_type_id=et1.id)
+            expense2 = Expense(date=date(2024, 2, 5), amount=70, expense_type_id=et2.id)
+
+            session.add_all([payment1, payment2, expense1, expense2])
             await session.commit()
             await session.refresh(c1)
             await session.refresh(c2)
@@ -113,3 +122,41 @@ def test_payments_by_method_filters(client):
     assert len(data) == 1
     assert data[0]["method"] == "Cash"
     assert data[0]["total_received"] == 100
+
+
+def test_income_by_date(client):
+    http, session_factory = client
+    _seed_data(session_factory)
+
+    resp = http.get(
+        "/reports/income-by-date",
+        params={"start_date": "2024-01-01", "end_date": "2024-02-28"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data == [
+        {"date": "2024-01-10", "total_income": 100},
+        {"date": "2024-02-10", "total_income": 200},
+    ]
+
+
+def test_expenses_by_date_and_type(client):
+    http, session_factory = client
+    _seed_data(session_factory)
+
+    resp = http.get(
+        "/reports/expenses-by-date",
+        params={"start_date": "2024-01-01", "end_date": "2024-02-28"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data == [
+        {"date": "2024-01-05", "total_expense": 50},
+        {"date": "2024-02-05", "total_expense": 70},
+    ]
+
+    resp = http.get("/reports/expenses-by-type")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert any(d["type"] == "Sueldo" and d["total_amount"] == 50 for d in data)
+    assert any(d["type"] == "Alquiler" and d["total_amount"] == 70 for d in data)
