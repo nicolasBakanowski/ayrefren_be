@@ -29,6 +29,7 @@ class InvoicesRepository:
                 selectinload(Invoice.client),
                 selectinload(Invoice.status),
                 selectinload(Invoice.payments).selectinload(Payment.bank_checks),
+                selectinload(Invoice.payments).selectinload(Payment.method),
             )
             .where(Invoice.id == id)
         )
@@ -92,6 +93,7 @@ class PaymentsRepository:
             select(Payment)
             .options(
                 selectinload(Payment.bank_checks),
+                selectinload(Payment.method),
                 selectinload(Payment.invoice)
                 .selectinload(Invoice.work_order)
                 .selectinload(WorkOrder.reviewer),
@@ -103,7 +105,10 @@ class PaymentsRepository:
     async def list_by_invoice(self, invoice_id: int) -> list[Payment]:
         result = await self.db.execute(
             select(Payment)
-            .options(selectinload(Payment.bank_checks))
+            .options(
+                selectinload(Payment.bank_checks),
+                selectinload(Payment.method),
+            )
             .where(Payment.invoice_id == invoice_id)
         )
         return result.scalars().all()
@@ -141,7 +146,10 @@ class PaymentsRepository:
         self, client_id: int | None = None, invoice_id: int | None = None
     ) -> list[Payment]:
         """Return payments filtered by client and/or invoice."""
-        query = select(Payment).options(selectinload(Payment.bank_checks))
+        query = select(Payment).options(
+            selectinload(Payment.bank_checks),
+            selectinload(Payment.method),
+        )
         if client_id is not None:
             query = query.join(Payment.invoice).where(Invoice.client_id == client_id)
         if invoice_id is not None:
