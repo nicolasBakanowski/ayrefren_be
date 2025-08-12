@@ -41,25 +41,23 @@ class ReportsService:
             JOIN work_orders wo ON wo.id = wot.work_order_id
             WHERE wot.area_id = :area_id
               AND wo.status_id = :status_id
-              AND wot.paid = FALSE;
+              AND wot.paid = FALSE
+            ORDER BY wot.id;
             """
         )
         params = {"area_id": 1, "status_id": 3}
         result = await self.db.execute(query, params)
-        rows = result.mappings().all()
-        tasks = []
-        total = 0.0
-        for row in rows:
-            price = float(row["price"])
-            tasks.append(
-                {
-                    "id": row["id"],
-                    "work_order_id": row["work_order_id"],
-                    "description": row["description"],
-                    "price": price,
-                }
-            )
-            total += price
+        rows = result.fetchall()
+        tasks = [
+            {
+                "id": row.id,
+                "work_order_id": row.work_order_id,
+                "description": row.description,
+                "price": float(row.price),
+            }
+            for row in rows
+        ]
+        total = sum(task["price"] for task in tasks)
         return {"total": total, "tasks": tasks}
 
     async def billing_by_client(
