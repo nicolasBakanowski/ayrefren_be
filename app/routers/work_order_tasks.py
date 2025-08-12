@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.roles import ADMIN, MECHANIC, REVISOR
@@ -62,17 +62,28 @@ async def delete_task(
 )
 async def get_earnings(
     area_id: int = Query(1, gt=0),
-    from_: datetime | None = Query(None, alias="from"),
-    to: datetime | None = Query(None),
+    from_: str | None = Query(None, alias="from"),
+    to: str | None = Query(None),
     paid: bool | None = Query(False),
     only_finalized: bool = Query(True),
     external: bool | None = Query(False),
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
+    def _parse_dt(value: str | None) -> datetime | None:
+        if value is None:
+            return None
+        try:
+            return datetime.fromisoformat(value)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail="Invalid datetime format") from exc
+
+    from_dt = _parse_dt(from_)
+    to_dt = _parse_dt(to)
+
     service = WorkOrderTasksService(db)
     data = await service.get_earnings(
-        area_id, paid, from_, to, only_finalized, external
+        area_id, paid, from_dt, to_dt, only_finalized, external
     )
     return success_response(data=data)
 
