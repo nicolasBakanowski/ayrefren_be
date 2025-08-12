@@ -21,6 +21,18 @@ async def report_profit_by_order(
     return success_response(data=data)
 
 
+@reports_router.get(
+    "/unpaid-air-mechanic-tasks", response_model=ResponseSchema
+)
+async def report_unpaid_air_mechanic_tasks(
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = ReportsService(db)
+    data = await service.unpaid_air_mechanic_tasks()
+    return success_response(data=data)
+
+
 @reports_router.get("/billing-by-client", response_model=ResponseSchema)
 async def report_billing_by_client(
     start_date: str | None = None,
