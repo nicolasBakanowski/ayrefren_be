@@ -24,10 +24,11 @@ def upgrade() -> None:
 
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
-        op.execute(
-            "CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_wot_area_created_paid "
-            "ON work_order_tasks (area_id, created_at, paid)"
-        )
+        with op.get_context().autocommit_block():
+            op.execute(
+                "CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_wot_area_created_paid "
+                "ON work_order_tasks (area_id, created_at, paid)"
+            )
     else:
         op.create_index(
             "ix_wot_area_created_paid",
@@ -40,9 +41,10 @@ def upgrade() -> None:
 def downgrade() -> None:
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
-        op.execute(
-            "DROP INDEX CONCURRENTLY IF EXISTS ix_wot_area_created_paid"
-        )
+        with op.get_context().autocommit_block():
+            op.execute(
+                "DROP INDEX CONCURRENTLY IF EXISTS ix_wot_area_created_paid"
+            )
     else:
         op.drop_index(
             "ix_wot_area_created_paid", table_name="work_order_tasks"
