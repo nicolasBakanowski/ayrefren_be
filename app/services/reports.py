@@ -29,6 +29,28 @@ class ReportsService:
         result = await self.db.execute(query)
         return [dict(row) for row in result.mappings().all()]
 
+    async def income_by_date(
+        self, start_date: str | None = None, end_date: str | None = None
+    ):
+        query = text(
+            """
+            SELECT
+              TO_CHAR(DATE_TRUNC('day', issued_at), 'YYYY-MM-DD') AS date,
+              SUM(total) AS total_income
+            FROM invoices
+            WHERE (:start IS NULL OR issued_at >= :start)
+              AND (:end IS NULL OR issued_at <= :end)
+            GROUP BY date
+            ORDER BY date;
+        """
+        ).bindparams(
+            sa.bindparam("start", type_=sa.DateTime()),
+            sa.bindparam("end", type_=sa.DateTime()),
+        )
+        params = {"start": start_date, "end": end_date}
+        result = await self.db.execute(query, params)
+        return [dict(row) for row in result.mappings().all()]
+
     async def billing_by_client(
         self, start_date: str | None = None, end_date: str | None = None
     ):
@@ -140,6 +162,28 @@ class ReportsService:
         """
         )
         result = await self.db.execute(query)
+        return [dict(row) for row in result.mappings().all()]
+
+    async def expenses_by_date(
+        self, start_date: str | None = None, end_date: str | None = None
+    ):
+        query = text(
+            """
+            SELECT
+              TO_CHAR(date, 'YYYY-MM-DD') AS date,
+              SUM(amount) AS total_expense
+            FROM expenses
+            WHERE (:start IS NULL OR date >= :start)
+              AND (:end IS NULL OR date <= :end)
+            GROUP BY date
+            ORDER BY date;
+        """
+        ).bindparams(
+            sa.bindparam("start", type_=sa.Date()),
+            sa.bindparam("end", type_=sa.Date()),
+        )
+        params = {"start": start_date, "end": end_date}
+        result = await self.db.execute(query, params)
         return [dict(row) for row in result.mappings().all()]
 
     async def monthly_balance(self):

@@ -50,6 +50,18 @@ async def report_income_monthly(
     return success_response(data=data)
 
 
+@reports_router.get("/income-by-date", response_model=ResponseSchema)
+async def report_income_by_date(
+    start_date: str | None = None,
+    end_date: str | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = ReportsService(db)
+    data = await service.income_by_date(start_date, end_date)
+    return success_response(data=data)
+
+
 @reports_router.get("/payments-by-method", response_model=ResponseSchema)
 async def report_payments_by_method(
     start_date: str | None = None,
@@ -70,6 +82,18 @@ async def report_expenses_monthly(
 ):
     service = ReportsService(db)
     data = await service.expenses_monthly()
+    return success_response(data=data)
+
+
+@reports_router.get("/expenses-by-date", response_model=ResponseSchema)
+async def report_expenses_by_date(
+    start_date: str | None = None,
+    end_date: str | None = None,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = ReportsService(db)
+    data = await service.expenses_by_date(start_date, end_date)
     return success_response(data=data)
 
 
