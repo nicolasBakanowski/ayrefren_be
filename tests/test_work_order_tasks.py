@@ -1,6 +1,5 @@
 import asyncio
 
-
 def test_add_task_invalid_fk(client):
     http, _ = client
     resp = http.post(
@@ -66,11 +65,15 @@ def test_task_flow(client):
         },
     )
     assert resp.status_code == 200
-    task_id = resp.json()["data"]["id"]
+    task_data = resp.json()["data"]
+    task_id = task_data["id"]
+    assert task_data["paid"] is False
 
     resp = http.get(f"/work-orders/tasks/{order_id}")
     assert resp.status_code == 200
-    assert any(t["id"] == task_id for t in resp.json()["data"])
+    tasks = resp.json()["data"]
+    assert any(t["id"] == task_id for t in tasks)
+    assert next(t for t in tasks if t["id"] == task_id)["paid"] is False
 
     resp = http.delete(f"/work-orders/tasks/{task_id}")
     assert resp.status_code == 200
