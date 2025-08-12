@@ -4,6 +4,7 @@ from typing import List
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.work_orders import WorkOrder
 from app.models.work_order_tasks import WorkOrderTask
 from app.schemas.work_order_tasks import WorkOrderTaskCreate
 
@@ -45,15 +46,22 @@ class WorkOrderTasksRepository:
             WorkOrderTask.created_at >= date_from,
             WorkOrderTask.created_at <= date_to,
             WorkOrderTask.paid == paid,
+            WorkOrder.status_id == 3,
         ]
         result = await self.db.execute(
-            select(WorkOrderTask).where(*filters).order_by(WorkOrderTask.created_at)
+            select(WorkOrderTask)
+            .join(WorkOrder)
+            .where(*filters)
+            .order_by(WorkOrderTask.created_at)
         )
         tasks = result.scalars().all()
         summary_result = await self.db.execute(
-            select(func.count(WorkOrderTask.id), func.coalesce(func.sum(WorkOrderTask.price), 0)).where(
-                *filters
+            select(
+                func.count(WorkOrderTask.id),
+                func.coalesce(func.sum(WorkOrderTask.price), 0),
             )
+            .join(WorkOrder)
+            .where(*filters)
         )
         count, total = summary_result.one()
         return tasks, count, float(total)

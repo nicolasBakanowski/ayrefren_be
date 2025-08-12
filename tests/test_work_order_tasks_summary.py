@@ -42,7 +42,9 @@ def test_summary_and_mark_paid(client):
             role = Role(name="tasker")
             area = WorkArea(name="area")
             cli = Client(type=ClientType.persona, name="Owner")
-            session.add_all([role, area, cli])
+            status_open = WorkOrderStatus(id=2, name="open")
+            status_finished = WorkOrderStatus(id=3, name="Finalizado")
+            session.add_all([role, area, cli, status_open, status_finished])
             await session.flush()
             user = User(
                 name="Worker", email="w@example.com", password="x", role_id=role.id
@@ -50,14 +52,13 @@ def test_summary_and_mark_paid(client):
             session.add(user)
             truck = Truck(client_id=cli.id, license_plate="TASK2")
             session.add(truck)
-            status = WorkOrderStatus(name="open")
-            session.add(status)
             await session.flush()
-            order = WorkOrder(truck_id=truck.id, status_id=status.id)
-            session.add(order)
+            order_finished = WorkOrder(truck_id=truck.id, status_id=status_finished.id)
+            order_open = WorkOrder(truck_id=truck.id, status_id=status_open.id)
+            session.add_all([order_finished, order_open])
             await session.flush()
             t1 = WorkOrderTask(
-                work_order_id=order.id,
+                work_order_id=order_finished.id,
                 user_id=user.id,
                 area_id=area.id,
                 description="t1",
@@ -65,20 +66,29 @@ def test_summary_and_mark_paid(client):
                 created_at=datetime(2025, 8, 1, 10, 0, 0),
             )
             t2 = WorkOrderTask(
-                work_order_id=order.id,
+                work_order_id=order_finished.id,
                 user_id=user.id,
                 area_id=area.id,
                 description="t2",
                 price=20,
                 created_at=datetime(2025, 8, 2, 12, 0, 0),
             )
-            session.add_all([t1, t2])
+            t3 = WorkOrderTask(
+                work_order_id=order_open.id,
+                user_id=user.id,
+                area_id=area.id,
+                description="t3",
+                price=50,
+                created_at=datetime(2025, 8, 1, 9, 0, 0),
+            )
+            session.add_all([t1, t2, t3])
             await session.commit()
             await session.refresh(t1)
             await session.refresh(t2)
-            return area.id, [t1.id, t2.id]
+            await session.refresh(t3)
+            return area.id, [t1.id, t2.id], t3.id
 
-    area_id, task_ids = asyncio.run(seed_data())
+    area_id, task_ids, _ = asyncio.run(seed_data())
 
     resp = http.get(
         "/work-orders/tasks/summary",
