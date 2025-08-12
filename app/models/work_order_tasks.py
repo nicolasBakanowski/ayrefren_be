@@ -16,6 +16,7 @@ class WorkOrderTask(Base):
     area_id = Column(Integer, ForeignKey("work_areas.id"), nullable=False)
     price = Column(Numeric(10, 2), nullable=False)
     external = Column(Boolean, default=False)
+    paid = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     work_order = relationship("WorkOrder", back_populates="tasks")

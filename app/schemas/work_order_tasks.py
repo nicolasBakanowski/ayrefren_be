@@ -10,6 +10,7 @@ class WorkOrderTaskBase(BaseModel):
     area_id: int
     price: float
     external: bool = False
+    paid: bool = False
 
 
 class WorkOrderTaskCreate(WorkOrderTaskBase):
