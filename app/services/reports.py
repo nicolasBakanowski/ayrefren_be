@@ -29,6 +29,23 @@ class ReportsService:
         result = await self.db.execute(query)
         return [dict(row) for row in result.mappings().all()]
 
+    async def unpaid_air_mechanic_tasks_total(self):
+        query = text(
+            """
+            SELECT
+              COALESCE(SUM(wot.price), 0) AS total
+            FROM work_order_tasks wot
+            JOIN work_orders wo ON wo.id = wot.work_order_id
+            WHERE wot.area_id = :area_id
+              AND wo.status_id = :status_id
+              AND wot.paid = FALSE;
+            """
+        )
+        params = {"area_id": 1, "status_id": 3}
+        result = await self.db.execute(query, params)
+        total = result.scalar() or 0
+        return {"total": float(total)}
+
     async def billing_by_client(
         self, start_date: str | None = None, end_date: str | None = None
     ):
