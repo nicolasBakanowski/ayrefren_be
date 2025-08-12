@@ -17,6 +17,8 @@ class WorkOrderTask(Base):
     price = Column(Numeric(10, 2), nullable=False)
     external = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    paid = Column(Boolean, default=False, nullable=False)
+    paid_at = Column(DateTime, nullable=True)
 
     work_order = relationship("WorkOrder", back_populates="tasks")
     user = relationship("User")

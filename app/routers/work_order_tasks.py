@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Path
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.roles import ADMIN, MECHANIC, REVISOR
@@ -6,7 +8,13 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.schemas.response import ResponseSchema
-from app.schemas.work_order_tasks import WorkOrderTaskCreate, WorkOrderTaskOut
+from app.schemas.work_order_tasks import (
+    MarkPaidIn,
+    MarkPaidOut,
+    TasksResponse,
+    WorkOrderTaskCreate,
+    WorkOrderTaskOut,
+)
 from app.services.work_order_tasks import WorkOrderTasksService
 
 work_order_tasks_router = APIRouter()
@@ -46,4 +54,37 @@ async def delete_task(
 ):
     service = WorkOrderTasksService(db)
     data = await service.delete_task(task_id)
+    return success_response(data=data)
+
+
+@work_order_tasks_router.get(
+    "/earnings", response_model=ResponseSchema[TasksResponse]
+)
+async def get_earnings(
+    area_id: int = Query(1, gt=0),
+    from_: datetime | None = Query(None, alias="from"),
+    to: datetime | None = Query(None),
+    paid: bool | None = Query(False),
+    only_finalized: bool = Query(True),
+    external: bool | None = Query(False),
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.get_earnings(
+        area_id, paid, from_, to, only_finalized, external
+    )
+    return success_response(data=data)
+
+
+@work_order_tasks_router.post(
+    "/mark-paid", response_model=ResponseSchema[MarkPaidOut]
+)
+async def mark_paid(
+    body: MarkPaidIn,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.mark_paid(body)
     return success_response(data=data)
