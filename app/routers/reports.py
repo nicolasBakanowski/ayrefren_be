@@ -29,7 +29,7 @@ async def report_unpaid_air_mechanic_tasks(
     current_user=Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = ReportsService(db)
-    data = await service.unpaid_air_mechanic_tasks_total()
+    data = await service.unpaid_air_mechanic_tasks()
     return success_response(data=data)
 
 

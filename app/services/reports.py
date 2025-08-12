@@ -29,11 +29,14 @@ class ReportsService:
         result = await self.db.execute(query)
         return [dict(row) for row in result.mappings().all()]
 
-    async def unpaid_air_mechanic_tasks_total(self):
+    async def unpaid_air_mechanic_tasks(self):
         query = text(
             """
             SELECT
-              COALESCE(SUM(wot.price), 0) AS total
+              wot.id,
+              wot.work_order_id,
+              wot.description,
+              wot.price
             FROM work_order_tasks wot
             JOIN work_orders wo ON wo.id = wot.work_order_id
             WHERE wot.area_id = :area_id
@@ -43,8 +46,21 @@ class ReportsService:
         )
         params = {"area_id": 1, "status_id": 3}
         result = await self.db.execute(query, params)
-        total = result.scalar() or 0
-        return {"total": float(total)}
+        rows = result.mappings().all()
+        tasks = []
+        total = 0.0
+        for row in rows:
+            price = float(row["price"])
+            tasks.append(
+                {
+                    "id": row["id"],
+                    "work_order_id": row["work_order_id"],
+                    "description": row["description"],
+                    "price": price,
+                }
+            )
+            total += price
+        return {"total": total, "tasks": tasks}
 
     async def billing_by_client(
         self, start_date: str | None = None, end_date: str | None = None
