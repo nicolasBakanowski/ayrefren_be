@@ -31,32 +31,6 @@ async def create_task(
 
 
 @work_order_tasks_router.get(
-    "/{work_order_id}", response_model=ResponseSchema[list[WorkOrderTaskOut]]
-)
-async def list_tasks(
-    work_order_id: int = Path(..., gt=0),
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
-):
-    service = WorkOrderTasksService(db)
-    data = await service.list_tasks(work_order_id)
-    return success_response(data=data)
-
-
-@work_order_tasks_router.delete(
-    "/{task_id}",
-)
-async def delete_task(
-    task_id: int = Path(..., gt=0),
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN)),
-):
-    service = WorkOrderTasksService(db)
-    data = await service.delete_task(task_id)
-    return success_response(data=data)
-
-
-@work_order_tasks_router.get(
     "/summary", response_model=ResponseSchema[WorkOrderTasksSummaryOut]
 )
 async def summary_tasks(
@@ -84,4 +58,30 @@ async def mark_paid(
 ):
     service = WorkOrderTasksService(db)
     data = await service.mark_paid(payload)
+    return success_response(data=data)
+
+
+@work_order_tasks_router.get(
+    "/{work_order_id}", response_model=ResponseSchema[list[WorkOrderTaskOut]]
+)
+async def list_tasks(
+    work_order_id: int = Path(..., gt=0),
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.list_tasks(work_order_id)
+    return success_response(data=data)
+
+
+@work_order_tasks_router.delete(
+    "/{task_id}",
+)
+async def delete_task(
+    task_id: int = Path(..., gt=0),
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.delete_task(task_id)
     return success_response(data=data)
