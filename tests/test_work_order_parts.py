@@ -79,3 +79,61 @@ def test_part_flow(client):
     resp = http.get(f"/work-orders/parts/{order_id}")
     assert resp.status_code == 200
     assert len(resp.json()["data"]) == 0
+
+
+def test_cannot_add_part_when_invoiced(client):
+    http, session_factory = client
+
+    async def seed_invoice():
+        async with session_factory() as session:
+            from app.models.clients import Client, ClientType
+            from app.models.trucks import Truck
+            from app.models.work_orders import WorkOrder, WorkOrderStatus
+            from app.models.invoices import Invoice, InvoiceStatus, InvoiceType
+
+            cli = Client(type=ClientType.persona, name="InvPart")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="IPT111")
+            session.add(truck)
+            status = WorkOrderStatus(name="open")
+            session.add(status)
+            await session.flush()
+            order = WorkOrder(truck_id=truck.id, status_id=status.id)
+            session.add(order)
+            await session.flush()
+            inv_status = InvoiceStatus(name="pend")
+            inv_type = InvoiceType(name="A")
+            session.add_all([inv_status, inv_type])
+            await session.flush()
+            invoice = Invoice(
+                work_order_id=order.id,
+                client_id=cli.id,
+                invoice_type_id=inv_type.id,
+                status_id=inv_status.id,
+                labor_total=0,
+                parts_total=0,
+                iva=0,
+                total=0,
+            )
+            session.add(invoice)
+            await session.commit()
+            await session.refresh(order)
+            return order.id
+
+    order_id = asyncio.run(seed_invoice())
+    resp = http.post(
+        "/work-orders/parts/",
+        json={
+            "work_order_id": order_id,
+            "quantity": 1,
+            "name": "Part",
+            "unit_price": 5,
+            "subtotal": 5,
+            "increment_per_unit": 0,
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 400

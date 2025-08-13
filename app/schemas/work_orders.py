@@ -48,6 +48,7 @@ class WorkOrderOut(WorkOrderBase):
     reviewer: Optional[UserOut] = None
     parts: List[WorkOrderPartOut] = []
     fast_phone: Optional[str] = None
+    is_editable: bool = True
 
     class Config:
         from_attributes = True

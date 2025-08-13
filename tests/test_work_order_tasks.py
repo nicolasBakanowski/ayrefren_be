@@ -97,3 +97,71 @@ def test_task_flow(client):
     resp = http.get(f"/work-orders/tasks/{order_id}")
     assert resp.status_code == 200
     assert len(resp.json()["data"]) == 0
+
+
+def test_cannot_add_task_when_invoiced(client):
+    http, session_factory = client
+
+    async def seed_invoice():
+        async with session_factory() as session:
+            from app.models.clients import Client, ClientType
+            from app.models.trucks import Truck
+            from app.models.users import Role, User
+            from app.models.work_orders import WorkOrder, WorkOrderStatus
+            from app.models.work_orders_mechanic import WorkArea
+            from app.models.invoices import Invoice, InvoiceStatus, InvoiceType
+
+            role = Role(name="tasker")
+            area = WorkArea(name="area")
+            cli = Client(type=ClientType.persona, name="InvTask")
+            session.add_all([role, area, cli])
+            await session.flush()
+            user = User(
+                name="Worker", email="w2@example.com", password="x", role_id=role.id
+            )
+            session.add(user)
+            truck = Truck(client_id=cli.id, license_plate="ITK111")
+            session.add(truck)
+            status = WorkOrderStatus(name="open")
+            session.add(status)
+            await session.flush()
+            order = WorkOrder(truck_id=truck.id, status_id=status.id)
+            session.add(order)
+            await session.flush()
+            inv_status = InvoiceStatus(name="pend")
+            inv_type = InvoiceType(name="A")
+            session.add_all([inv_status, inv_type])
+            await session.flush()
+            invoice = Invoice(
+                work_order_id=order.id,
+                client_id=cli.id,
+                invoice_type_id=inv_type.id,
+                status_id=inv_status.id,
+                labor_total=0,
+                parts_total=0,
+                iva=0,
+                total=0,
+            )
+            session.add(invoice)
+            await session.commit()
+            await session.refresh(order)
+            await session.refresh(user)
+            await session.refresh(area)
+            return order.id, user.id, area.id
+
+    order_id, user_id, area_id = asyncio.run(seed_invoice())
+    resp = http.post(
+        "/work-orders/tasks/",
+        json={
+            "work_order_id": order_id,
+            "user_id": user_id,
+            "area_id": area_id,
+            "description": "Fix",
+            "price": 10.0,
+            "external": True,
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 400
