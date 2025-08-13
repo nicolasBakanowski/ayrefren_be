@@ -54,8 +54,8 @@ async def list_parts(
     "/{part_id}", response_model=ResponseSchema[WorkOrderPartOut]
 )
 async def update_part(
-    part_id: int = Path(..., gt=0),
     part_in: WorkOrderPartUpdate,
+    part_id: int = Path(..., gt=0),
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
