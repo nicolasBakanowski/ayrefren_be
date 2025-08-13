@@ -6,7 +6,7 @@ from app.db.repositories.work_order_tasks import WorkOrderTasksRepository
 from app.models.users import User
 from app.models.work_orders import WorkOrder
 from app.models.work_orders_mechanic import WorkArea
-from app.schemas.work_order_tasks import WorkOrderTaskCreate
+from app.schemas.work_order_tasks import WorkOrderTaskCreate, WorkOrderTaskUpdate
 
 
 class WorkOrderTasksService:
@@ -26,6 +26,20 @@ class WorkOrderTasksService:
 
     async def list_tasks(self, work_order_id: int):
         return await self.repo.list_by_work_order(work_order_id)
+
+    async def update_task(self, task_id: int, data: WorkOrderTaskUpdate):
+        await validate_foreign_keys(
+            self.repo.db,
+            {
+                WorkOrder: data.work_order_id,
+                User: data.user_id,
+                WorkArea: data.area_id,
+            },
+        )
+        updated = await self.repo.update(task_id, data.dict(exclude_unset=True))
+        if not updated:
+            raise HTTPException(status_code=404, detail="Tarea no encontrada")
+        return updated
 
     async def delete_task(self, task_id: int):
         deleted = await self.repo.delete(task_id)

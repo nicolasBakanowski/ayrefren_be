@@ -6,7 +6,11 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.schemas.response import ResponseSchema
-from app.schemas.work_order_parts import WorkOrderPartCreate, WorkOrderPartOut
+from app.schemas.work_order_parts import (
+    WorkOrderPartCreate,
+    WorkOrderPartOut,
+    WorkOrderPartUpdate,
+)
 from app.services.work_order_parts import WorkOrderPartsService
 
 work_order_parts_router = APIRouter()
@@ -43,6 +47,20 @@ async def list_parts(
 ):
     service = WorkOrderPartsService(db)
     data = await service.list_parts(work_order_id)
+    return success_response(data=data)
+
+
+@work_order_parts_router.put(
+    "/{part_id}", response_model=ResponseSchema[WorkOrderPartOut]
+)
+async def update_part(
+    part_id: int = Path(..., gt=0),
+    part_in: WorkOrderPartUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderPartsService(db)
+    data = await service.update_part(part_id, part_in)
     return success_response(data=data)
 
 

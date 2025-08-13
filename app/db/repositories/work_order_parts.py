@@ -42,6 +42,16 @@ class WorkOrderPartsRepository:
 
         return result.scalar_one_or_none()
 
+    async def update(self, part_id: int, data: dict) -> WorkOrderPart | None:
+        part = await self.get(part_id)
+        if not part:
+            return None
+        for key, value in data.items():
+            setattr(part, key, value)
+        await self.db.commit()
+        await self.db.refresh(part)
+        return await self.get(part.id)
+
     async def list_names(self) -> list[str]:
         result = await self.db.execute(select(WorkOrderPart.name))
         return [row[0] for row in result.fetchall()]
