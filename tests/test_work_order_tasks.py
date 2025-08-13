@@ -75,6 +75,20 @@ def test_task_flow(client):
     assert any(t["id"] == task_id for t in tasks)
     assert next(t for t in tasks if t["id"] == task_id)["paid"] is False
 
+    resp = http.put(
+        f"/work-orders/tasks/{task_id}",
+        json={"price": 15.0, "paid": True},
+    )
+    assert resp.status_code == 200
+    updated = resp.json()["data"]
+    assert updated["price"] == 15.0
+    assert updated["paid"] is True
+
+    resp = http.get(f"/work-orders/tasks/{order_id}")
+    assert resp.status_code == 200
+    tasks = resp.json()["data"]
+    assert next(t for t in tasks if t["id"] == task_id)["paid"] is True
+
     resp = http.delete(f"/work-orders/tasks/{task_id}")
     assert resp.status_code == 200
     assert resp.json()["data"]["detail"] == "Tarea eliminada"

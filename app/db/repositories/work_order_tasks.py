@@ -22,6 +22,22 @@ class WorkOrderTasksRepository:
         )
         return result.scalars().all()
 
+    async def get(self, task_id: int) -> WorkOrderTask | None:
+        result = await self.db.execute(
+            select(WorkOrderTask).where(WorkOrderTask.id == task_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def update(self, task_id: int, data: dict) -> WorkOrderTask | None:
+        task = await self.get(task_id)
+        if not task:
+            return None
+        for key, value in data.items():
+            setattr(task, key, value)
+        await self.db.commit()
+        await self.db.refresh(task)
+        return task
+
     async def delete(self, task_id: int) -> bool:
         task = await self.db.get(WorkOrderTask, task_id)
         if not task:

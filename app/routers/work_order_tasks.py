@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.schemas.response import ResponseSchema
-from app.schemas.work_order_tasks import WorkOrderTaskCreate, WorkOrderTaskOut
+from app.schemas.work_order_tasks import WorkOrderTaskCreate, WorkOrderTaskOut, WorkOrderTaskUpdate
 from app.services.work_order_tasks import WorkOrderTasksService
 
 work_order_tasks_router = APIRouter()
@@ -33,6 +33,18 @@ async def list_tasks(
 ):
     service = WorkOrderTasksService(db)
     data = await service.list_tasks(work_order_id)
+    return success_response(data=data)
+
+
+@work_order_tasks_router.put("/{task_id}", response_model=ResponseSchema[WorkOrderTaskOut])
+async def update_task(
+    task_id: int = Path(..., gt=0),
+    task_in: WorkOrderTaskUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.update_task(task_id, task_in)
     return success_response(data=data)
 
 
