@@ -97,6 +97,8 @@ class PaymentsRepository:
                 selectinload(Payment.invoice)
                 .selectinload(Invoice.work_order)
                 .selectinload(WorkOrder.reviewer),
+                selectinload(Payment.invoice),
+                selectinload(Payment.method),
             )
             .where(Payment.id == payment_id)
         )

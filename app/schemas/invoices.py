@@ -110,8 +110,15 @@ class InvoiceDetailOut(InvoiceOut):
 class PaymentOut(PaymentCreate):
     id: int
     date: datetime
-    bank_checks: list[BankCheckOut] | None
+    method_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class PaymentOutDetail(PaymentOut):
     method: PaymentMethodOut
+    bank_checks: list[BankCheckOut] | None = None
 
     class Config:
         from_attributes = True
