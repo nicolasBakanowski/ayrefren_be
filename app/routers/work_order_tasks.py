@@ -8,6 +8,7 @@ from app.core.responses import success_response
 from app.schemas.response import ResponseSchema
 from app.schemas.work_order_tasks import (
     WorkOrderTaskCreate,
+    WorkOrderTaskBulkPaidUpdate,
     WorkOrderTaskOut,
     WorkOrderTaskUpdate,
 )
@@ -24,6 +25,19 @@ async def create_task(
 ):
     service = WorkOrderTasksService(db)
     data = await service.create_task(task_in)
+    return success_response(data=data)
+
+
+@work_order_tasks_router.put(
+    "/bulk-paid", response_model=ResponseSchema[list[WorkOrderTaskOut]]
+)
+async def bulk_update_paid(
+    tasks_in: WorkOrderTaskBulkPaidUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.bulk_update_paid(tasks_in)
     return success_response(data=data)
 
 

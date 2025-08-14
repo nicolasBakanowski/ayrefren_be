@@ -45,3 +45,19 @@ class WorkOrderTasksRepository:
         await self.db.delete(task)
         await self.db.commit()
         return True
+
+    async def bulk_update_paid(
+        self, task_ids: list[int], paid: bool
+    ) -> list[WorkOrderTask] | None:
+        result = await self.db.execute(
+            select(WorkOrderTask).where(WorkOrderTask.id.in_(task_ids))
+        )
+        tasks = result.scalars().all()
+        if len(tasks) != len(task_ids):
+            return None
+        for task in tasks:
+            task.paid = paid
+        await self.db.commit()
+        for task in tasks:
+            await self.db.refresh(task)
+        return tasks

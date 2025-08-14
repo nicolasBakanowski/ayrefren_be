@@ -27,6 +27,11 @@ class WorkOrderTaskUpdate(BaseModel):
     paid: bool | None = None
 
 
+class WorkOrderTaskBulkPaidUpdate(BaseModel):
+    task_ids: list[int]
+    paid: bool
+
+
 class WorkOrderTaskOut(WorkOrderTaskBase):
     id: int
     created_at: datetime

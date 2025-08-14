@@ -165,3 +165,83 @@ def test_cannot_add_task_when_invoiced(client):
     data = resp.json()
     assert not data["success"]
     assert data["code"] == 400
+
+
+def test_bulk_update_paid(client):
+    http, session_factory = client
+
+    async def seed_data():
+        async with session_factory() as session:
+            from app.models.clients import Client, ClientType
+            from app.models.trucks import Truck
+            from app.models.users import Role, User
+            from app.models.work_orders import WorkOrder, WorkOrderStatus
+            from app.models.work_orders_mechanic import WorkArea
+
+            role = Role(name="tasker")
+            area = WorkArea(name="area")
+            cli = Client(type=ClientType.persona, name="Owner")
+            session.add_all([role, area, cli])
+            await session.flush()
+            user = User(
+                name="Worker",
+                email="worker@example.com",
+                password="x",
+                role_id=role.id,
+            )
+            session.add(user)
+            truck = Truck(client_id=cli.id, license_plate="BULK1")
+            session.add(truck)
+            status = WorkOrderStatus(name="open")
+            session.add(status)
+            await session.flush()
+            order = WorkOrder(truck_id=truck.id, status_id=status.id)
+            session.add(order)
+            await session.commit()
+            await session.refresh(order)
+            await session.refresh(user)
+            await session.refresh(area)
+            return order.id, user.id, area.id
+
+    work_order_id, user_id, area_id = asyncio.run(seed_data())
+
+    ids = []
+    for desc in ("T1", "T2"):
+        resp = http.post(
+            "/work-orders/tasks/",
+            json={
+                "work_order_id": work_order_id,
+                "user_id": user_id,
+                "area_id": area_id,
+                "description": desc,
+                "price": 5,
+                "external": False,
+            },
+        )
+        assert resp.status_code == 200
+        ids.append(resp.json()["data"]["id"])
+
+    resp = http.put(
+        "/work-orders/tasks/bulk-paid",
+        json={"task_ids": ids, "paid": True},
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert all(t["paid"] is True for t in data)
+
+    resp = http.get(f"/work-orders/tasks/{work_order_id}")
+    assert resp.status_code == 200
+    tasks = resp.json()["data"]
+    assert all(t["paid"] is True for t in tasks)
+
+
+def test_bulk_update_paid_not_found(client):
+    http, _ = client
+    resp = http.put(
+        "/work-orders/tasks/bulk-paid",
+        json={"task_ids": [999], "paid": True},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert not data["success"]
+    assert data["code"] == 404
