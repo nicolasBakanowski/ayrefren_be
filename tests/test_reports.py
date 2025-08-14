@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import date, datetime
 
 from app.models.clients import Client, ClientType
 from app.models.invoices import (
@@ -11,6 +11,7 @@ from app.models.invoices import (
 )
 from app.models.trucks import Truck
 from app.models.work_orders import WorkOrder, WorkOrderStatus
+from app.models.expense import Expense, ExpenseType
 
 
 def _seed_data(session_factory):
@@ -81,6 +82,59 @@ def _seed_data(session_factory):
     return asyncio.run(run())
 
 
+def _seed_balance_data(session_factory):
+    async def run():
+        async with session_factory() as session:
+            client = Client(type=ClientType.persona, name="Alpha")
+            session.add(client)
+            await session.flush()
+
+            truck = Truck(client_id=client.id, license_plate="A111")
+            status = WorkOrderStatus(name="rpt")
+            session.add_all([truck, status])
+            await session.flush()
+
+            order = WorkOrder(truck_id=truck.id, status_id=status.id)
+            inv_status = InvoiceStatus(name="pending")
+            inv_type = InvoiceType(name="A", surcharge=21)
+            session.add_all([order, inv_status, inv_type])
+            await session.flush()
+
+            invoice = Invoice(
+                work_order_id=order.id,
+                client_id=client.id,
+                invoice_type_id=inv_type.id,
+                status_id=inv_status.id,
+                labor_total=0,
+                parts_total=0,
+                iva=0,
+                total=100,
+                issued_at=datetime(2024, 1, 10),
+            )
+            method = PaymentMethod(name="Cash")
+            session.add_all([invoice, method])
+            await session.flush()
+
+            payment = Payment(
+                invoice_id=invoice.id,
+                method_id=method.id,
+                amount=80,
+                date=datetime(2024, 1, 20),
+            )
+            expense_type = ExpenseType(name="General")
+            session.add(expense_type)
+            await session.flush()
+            expense = Expense(
+                date=date(2024, 1, 5),
+                amount=60,
+                expense_type_id=expense_type.id,
+            )
+            session.add_all([payment, expense])
+            await session.commit()
+
+    asyncio.run(run())
+
+
 def test_billing_by_client_date_range(client):
     http, session_factory = client
     client1_id, _ = _seed_data(session_factory)
@@ -113,3 +167,17 @@ def test_payments_by_method_filters(client):
     assert len(data) == 1
     assert data[0]["method"] == "Cash"
     assert data[0]["total_received"] == 100
+
+
+def test_financial_balance(client):
+    http, session_factory = client
+    _seed_balance_data(session_factory)
+
+    resp = http.get("/reports/financial-balance")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["estimated_income"] == 100
+    assert data["real_income"] == 80
+    assert data["expense"] == 60
+    assert data["estimated_balance"] == 40
+    assert data["real_balance"] == 20

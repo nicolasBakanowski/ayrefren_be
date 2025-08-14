@@ -17,6 +17,14 @@ class MonthlyBalanceOut(BaseModel):
     balance: float
 
 
+class FinancialBalanceOut(BaseModel):
+    estimated_income: float
+    real_income: float
+    expense: float
+    estimated_balance: float
+    real_balance: float
+
+
 class ExpenseByTypeOut(BaseModel):
     type: str
     total_amount: float
