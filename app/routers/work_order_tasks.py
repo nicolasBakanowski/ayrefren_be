@@ -28,6 +28,19 @@ async def create_task(
     return success_response(data=data)
 
 
+@work_order_tasks_router.put(
+    "/bulk-paid", response_model=ResponseSchema[list[WorkOrderTaskOut]]
+)
+async def bulk_update_paid(
+    tasks_in: WorkOrderTaskBulkPaidUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = WorkOrderTasksService(db)
+    data = await service.bulk_update_paid(tasks_in)
+    return success_response(data=data)
+
+
 @work_order_tasks_router.get(
     "/{work_order_id}", response_model=ResponseSchema[list[WorkOrderTaskOut]]
 )
@@ -65,17 +78,4 @@ async def delete_task(
 ):
     service = WorkOrderTasksService(db)
     data = await service.delete_task(task_id)
-    return success_response(data=data)
-
-
-@work_order_tasks_router.put(
-    "/bulk-paid", response_model=ResponseSchema[list[WorkOrderTaskOut]]
-)
-async def bulk_update_paid(
-    tasks_in: WorkOrderTaskBulkPaidUpdate,
-    db: AsyncSession = Depends(get_db),
-    current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
-):
-    service = WorkOrderTasksService(db)
-    data = await service.bulk_update_paid(tasks_in)
     return success_response(data=data)
