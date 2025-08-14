@@ -8,7 +8,11 @@ from app.models.users import User
 from app.models.work_orders import WorkOrder
 from app.models.work_orders_mechanic import WorkArea
 from app.models.invoices import Invoice
-from app.schemas.work_order_tasks import WorkOrderTaskCreate, WorkOrderTaskUpdate
+from app.schemas.work_order_tasks import (
+    WorkOrderTaskBulkPaidUpdate,
+    WorkOrderTaskCreate,
+    WorkOrderTaskUpdate,
+)
 
 
 class WorkOrderTasksService:
@@ -66,3 +70,9 @@ class WorkOrderTasksService:
         if not deleted:
             raise HTTPException(status_code=404, detail="Tarea no encontrada")
         return {"detail": "Tarea eliminada"}
+
+    async def bulk_update_paid(self, data: WorkOrderTaskBulkPaidUpdate):
+        tasks = await self.repo.bulk_update_paid(data.task_ids, data.paid)
+        if tasks is None:
+            raise HTTPException(status_code=404, detail="Tarea no encontrada")
+        return tasks
