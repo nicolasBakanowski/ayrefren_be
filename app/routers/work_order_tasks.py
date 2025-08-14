@@ -58,8 +58,8 @@ async def list_tasks(
     "/{task_id}", response_model=ResponseSchema[WorkOrderTaskOut]
 )
 async def update_task(
+    task_id: int,
     task_in: WorkOrderTaskUpdate,
-    task_id: int = Path(..., gt=0),
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
