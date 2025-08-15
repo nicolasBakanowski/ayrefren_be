@@ -1,5 +1,4 @@
 import asyncio
-from datetime import date
 
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,10 +8,7 @@ from app.core.database import engine
 from app.models import (
     Client,
     ClientType,
-    Expense,
     ExpenseType,
-    Invoice,
-    Payment,
     Role,
     Truck,
     User,
@@ -99,16 +95,6 @@ async def seed_clients_and_trucks(session: AsyncSession):
 async def seed_expenses(session: AsyncSession):
     if not await session.scalar(select(ExpenseType).where(ExpenseType.id == 1)):
         session.add(ExpenseType(id=1, name="Mantenimiento"))
-    if not await session.scalar(select(Expense).where(Expense.id == 1)):
-        session.add(
-            Expense(
-                id=1,
-                date=date.today(),
-                amount=100,
-                description="Aceite",
-                expense_type_id=1,
-            )
-        )
     await session.commit()
 
 
@@ -225,48 +211,6 @@ async def seed_work_orders(session: AsyncSession):
     await session.commit()
 
 
-async def seed_invoices(session: AsyncSession):
-    invoices = [
-        {
-            "id": 1,
-            "work_order_id": 1,
-            "client_id": 1,
-            "invoice_type_id": 1,
-            "status_id": 1,
-            "labor_total": 50.0,
-            "parts_total": 80.0,
-            "iva": 21.0,
-            "total": 151.0,
-        },
-        {
-            "id": 2,
-            "work_order_id": 2,
-            "client_id": 2,
-            "invoice_type_id": 2,
-            "status_id": 1,
-            "labor_total": 100.0,
-            "parts_total": 80.0,
-            "iva": 21.0,
-            "total": 201.0,
-        },
-    ]
-    for data in invoices:
-        result = await session.execute(select(Invoice).where(Invoice.id == data["id"]))
-        if not result.scalars().first():
-            session.add(Invoice(**data))
-    await session.commit()
-
-    payments = [
-        {"id": 1, "invoice_id": 1, "method_id": 1, "amount": 151.0},
-        {"id": 2, "invoice_id": 2, "method_id": 2, "amount": 201.0},
-    ]
-    for data in payments:
-        result = await session.execute(select(Payment).where(Payment.id == data["id"]))
-        if not result.scalars().first():
-            session.add(Payment(**data))
-    await session.commit()
-
-
 async def seed():
     await init_basic_data()
     async with AsyncSession(engine) as session:
@@ -274,7 +218,6 @@ async def seed():
         await seed_clients_and_trucks(session)
         await seed_expenses(session)
         await seed_work_orders(session)
-        await seed_invoices(session)
 
 
 if __name__ == "__main__":
