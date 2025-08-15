@@ -198,3 +198,25 @@ class ReportsService:
         )
         result = await self.db.execute(query)
         return [dict(row) for row in result.mappings().all()]
+
+    async def financial_balance(self):
+        query = text(
+            """
+            SELECT
+              (SELECT COALESCE(SUM(total), 0) FROM invoices) AS estimated_income,
+              (SELECT COALESCE(SUM(amount), 0) FROM payments) AS real_income,
+              (SELECT COALESCE(SUM(amount), 0) FROM expenses) AS expense
+            """
+        )
+        result = await self.db.execute(query)
+        row = result.mappings().first()
+        estimated_income = float(row["estimated_income"])
+        real_income = float(row["real_income"])
+        expense = float(row["expense"])
+        return {
+            "estimated_income": estimated_income,
+            "real_income": real_income,
+            "expense": expense,
+            "estimated_balance": estimated_income - expense,
+            "real_balance": real_income - expense,
+        }

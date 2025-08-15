@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.core.dependencies import roles_allowed
 from app.core.responses import success_response
 from app.schemas.response import ResponseSchema
+from app.schemas.reports import FinancialBalanceOut
 from app.services.reports import ReportsService
 
 reports_router = APIRouter()
@@ -100,6 +101,18 @@ async def report_monthly_balance(
 ):
     service = ReportsService(db)
     data = await service.monthly_balance()
+    return success_response(data=data)
+
+
+@reports_router.get(
+    "/financial-balance", response_model=ResponseSchema[FinancialBalanceOut]
+)
+async def report_financial_balance(
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(roles_allowed(ADMIN, REVISOR)),
+):
+    service = ReportsService(db)
+    data = await service.financial_balance()
     return success_response(data=data)
 
 
