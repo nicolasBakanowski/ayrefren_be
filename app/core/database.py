@@ -7,7 +7,11 @@ from sqlalchemy.orm import sessionmaker
 from app.core.settings import settings
 
 # Asegurate que tu DATABASE_URL sea asíncrona: postgresql+asyncpg://...
-engine = create_async_engine(settings.DATABASE_URL, echo=True)
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=True,
+    connect_args={"options": "-c timezone=America/Argentina/Buenos_Aires"},
+)
 
 AsyncSessionLocal = sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False
