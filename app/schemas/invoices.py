@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.models.invoices import BankCheckType
 
@@ -85,16 +85,14 @@ class BankCheckOut(BankCheckIn):
     issued_at: datetime
     exchange_date: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaymentMethodOut(BaseModel):
     id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BankCheckExchange(BaseModel):
@@ -110,15 +108,8 @@ class InvoiceDetailOut(InvoiceOut):
 class PaymentOut(PaymentCreate):
     id: int
     date: datetime
-    method_id: int
-
-    class Config:
-        from_attributes = True
-
-
-class PaymentOutDetail(PaymentOut):
     method: PaymentMethodOut
     bank_checks: list[BankCheckOut] | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+

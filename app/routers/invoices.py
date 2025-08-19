@@ -65,7 +65,7 @@ async def register_payment(
 ):
     service = PaymentsService(db)
     payment = await service.create(payment_in)
-    data = PaymentOut.model_validate(payment).model_dump()
+    data = PaymentOut.model_validate(payment, from_attributes=True).model_dump()
     return success_response(data=data)
 
 
