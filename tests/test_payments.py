@@ -200,3 +200,41 @@ def test_list_payments_by_invoice_query(client):
     payments = resp.json()["data"]
     assert len(payments) == 1
     assert payments[0]["invoice_id"] == invoice_id
+
+
+def test_list_payments_pagination(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+
+    for amount in [10, 20, 30]:
+        http.post(
+            "/invoices/payments/",
+            json={"invoice_id": invoice_id, "method_id": method_id, "amount": amount},
+        )
+
+    resp = http.get(
+        "/invoices/payments/", params={"invoice_id": invoice_id, "skip": 1, "limit": 1}
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["amount"] == 20
+
+
+def test_list_payments_by_invoice_pagination(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+
+    for amount in [5, 15]:
+        http.post(
+            "/invoices/payments/",
+            json={"invoice_id": invoice_id, "method_id": method_id, "amount": amount},
+        )
+
+    resp = http.get(
+        f"/invoices/payments/{invoice_id}", params={"skip": 1, "limit": 1}
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["amount"] == 15

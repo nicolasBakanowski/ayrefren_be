@@ -35,13 +35,16 @@ class InvoicesRepository:
         )
         return result.scalar_one_or_none()
 
-    async def list(self) -> list[Invoice]:
+    async def list(self, skip: int = 0, limit: int = 100) -> list[Invoice]:
         result = await self.db.execute(
-            select(Invoice).options(
+            select(Invoice)
+            .options(
                 selectinload(Invoice.client),
                 selectinload(Invoice.invoice_type),
                 selectinload(Invoice.status),
             )
+            .offset(skip)
+            .limit(limit)
         )
         return result.scalars().all()
 
@@ -104,7 +107,9 @@ class PaymentsRepository:
         )
         return result.scalar_one_or_none()
 
-    async def list_by_invoice(self, invoice_id: int) -> list[Payment]:
+    async def list_by_invoice(
+        self, invoice_id: int, skip: int = 0, limit: int = 100
+    ) -> list[Payment]:
         result = await self.db.execute(
             select(Payment)
             .options(
@@ -112,6 +117,8 @@ class PaymentsRepository:
                 selectinload(Payment.method),
             )
             .where(Payment.invoice_id == invoice_id)
+            .offset(skip)
+            .limit(limit)
         )
         return result.scalars().all()
 
@@ -145,7 +152,11 @@ class PaymentsRepository:
         return check
 
     async def list(
-        self, client_id: int | None = None, invoice_id: int | None = None
+        self,
+        client_id: int | None = None,
+        invoice_id: int | None = None,
+        skip: int = 0,
+        limit: int = 100,
     ) -> list[Payment]:
         """Return payments filtered by client and/or invoice."""
         query = select(Payment).options(
@@ -156,5 +167,6 @@ class PaymentsRepository:
             query = query.join(Payment.invoice).where(Invoice.client_id == client_id)
         if invoice_id is not None:
             query = query.where(Payment.invoice_id == invoice_id)
+        query = query.offset(skip).limit(limit)
         result = await self.db.execute(query)
         return result.scalars().all()

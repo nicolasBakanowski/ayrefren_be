@@ -43,8 +43,8 @@ class WorkOrdersService:
             raise HTTPException(status_code=404, detail="Orden no encontrada")
         return await self._add_editable(work_order)
 
-    async def list_work_orders(self):
-        orders = await self.repo.list()
+    async def list_work_orders(self, skip: int = 0, limit: int = 100):
+        orders = await self.repo.list(skip=skip, limit=limit)
         return [await self._add_editable(o) for o in orders]
 
     async def update_work_order(self, work_order_id: int, data: WorkOrderUpdate):

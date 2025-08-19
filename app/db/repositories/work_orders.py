@@ -32,9 +32,10 @@ class WorkOrdersRepository:
         )
         return result.scalar_one_or_none()
 
-    async def list(self) -> list[WorkOrder]:
+    async def list(self, skip: int = 0, limit: int = 100) -> list[WorkOrder]:
         result = await self.db.execute(
-            select(WorkOrder).options(
+            select(WorkOrder)
+            .options(
                 selectinload(WorkOrder.status),
                 selectinload(WorkOrder.truck).selectinload(Truck.client),
                 selectinload(WorkOrder.reviewer),
@@ -42,6 +43,8 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.tasks),
                 selectinload(WorkOrder.parts),
             )
+            .offset(skip)
+            .limit(limit)
         )
         return result.scalars().all()
 

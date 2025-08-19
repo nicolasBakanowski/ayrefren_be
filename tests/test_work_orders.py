@@ -102,6 +102,36 @@ def test_list_orders(client):
     assert len(resp.json()["data"]) == 2
 
 
+def test_list_orders_pagination(client):
+    http, session_factory = client
+
+    async def seed_orders():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="Paginator")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="PAG111")
+            session.add(truck)
+            status = WorkOrderStatus(name="pg")
+            session.add(status)
+            await session.flush()
+            ids = []
+            for _ in range(3):
+                order = WorkOrder(truck_id=truck.id, status_id=status.id)
+                session.add(order)
+                await session.flush()
+                ids.append(order.id)
+            await session.commit()
+            return ids
+
+    ids = asyncio.run(seed_orders())
+    resp = http.get("/orders/", params={"skip": 1, "limit": 1})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["id"] == ids[1]
+
+
 def test_get_order_success(client):
     http, session_factory = client
 

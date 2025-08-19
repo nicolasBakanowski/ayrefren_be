@@ -25,11 +25,13 @@ async def create_order(
 
 @work_orders_router.get("/", response_model=ResponseSchema[list[WorkOrderOut]])
 async def list_orders(
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrdersService(db)
-    orders = await service.list_work_orders()
+    orders = await service.list_work_orders(skip=skip, limit=limit)
     return success_response(data=orders)
 
 
