@@ -231,9 +231,7 @@ def test_list_payments_by_invoice_pagination(client):
             json={"invoice_id": invoice_id, "method_id": method_id, "amount": amount},
         )
 
-    resp = http.get(
-        f"/invoices/payments/{invoice_id}", params={"skip": 1, "limit": 1}
-    )
+    resp = http.get(f"/invoices/payments/{invoice_id}", params={"skip": 1, "limit": 1})
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert len(data) == 1

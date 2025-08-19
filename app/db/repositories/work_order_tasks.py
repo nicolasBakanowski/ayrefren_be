@@ -10,7 +10,7 @@ class WorkOrderTasksRepository:
         self.db = db
 
     async def create(self, task_in: WorkOrderTaskCreate) -> WorkOrderTask:
-        task = WorkOrderTask(**task_in.dict())
+        task = WorkOrderTask(**task_in.model_dump())
         self.db.add(task)
         await self.db.commit()
         await self.db.refresh(task)

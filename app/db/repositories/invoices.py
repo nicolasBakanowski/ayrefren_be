@@ -15,7 +15,7 @@ class InvoicesRepository:
         self.db = db
 
     async def create(self, data: InvoiceCreate) -> Invoice:
-        invoice = Invoice(**data.dict())
+        invoice = Invoice(**data.model_dump())
         self.db.add(invoice)
         await self.db.commit()
         await self.db.refresh(invoice)
@@ -77,12 +77,12 @@ class PaymentsRepository:
 
     async def create(self, data: PaymentCreate) -> Payment:
         bank_checks_data = data.bank_checks or []
-        payment_dict = data.dict(exclude={"bank_checks"})
+        payment_dict = data.model_dump(exclude={"bank_checks"})
         payment = Payment(**payment_dict)
         self.db.add(payment)
         await self.db.flush()
         for bc in bank_checks_data:
-            self.db.add(BankCheck(payment_id=payment.id, **bc.dict()))
+            self.db.add(BankCheck(payment_id=payment.id, **bc.model_dump()))
 
         # Actualizar total pagado en la factura
         invoice = await self.db.get(Invoice, data.invoice_id)

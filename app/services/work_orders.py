@@ -4,10 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.validators import validate_foreign_keys
 from app.db.repositories.work_orders import WorkOrdersRepository
+from app.models.invoices import Invoice
 from app.models.trucks import Truck
 from app.models.users import User
 from app.models.work_orders import WorkOrderStatus
-from app.models.invoices import Invoice
 from app.schemas.work_orders import WorkOrderCreate, WorkOrderUpdate
 
 
@@ -49,7 +49,9 @@ class WorkOrdersService:
 
     async def update_work_order(self, work_order_id: int, data: WorkOrderUpdate):
         await validate_foreign_keys(self.repo.db, {WorkOrderStatus: data.status_id})
-        updated = await self.repo.update(work_order_id, data.dict(exclude_unset=True))
+        updated = await self.repo.update(
+            work_order_id, data.model_dump(exclude_unset=True)
+        )
         if not updated:
             raise HTTPException(status_code=404, detail="Orden no encontrada")
         return await self._add_editable(await self.repo.get(work_order_id))

@@ -12,7 +12,7 @@ class WorkOrderMechanicRepository:
     async def assign_mechanic(
         self, mechanic_in: WorkOrderMechanicCreate
     ) -> WorkOrderMechanic:
-        mechanic = WorkOrderMechanic(**mechanic_in.dict())
+        mechanic = WorkOrderMechanic(**mechanic_in.model_dump())
         self.db.add(mechanic)
         await self.db.commit()
         await self.db.refresh(mechanic)
