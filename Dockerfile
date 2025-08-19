@@ -1,21 +1,17 @@
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
- && rm -rf /var/lib/apt/lists/* \
-
-RUN pip install --upgrade pip
-
-# 1) Copiá primero requirements para aprovechar la cache
+# cache-friendly: primero deps
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# 2) Recién ahora copiá el resto del código
+# luego el código
 COPY . .
 
 RUN chmod +x scripts/start.sh
