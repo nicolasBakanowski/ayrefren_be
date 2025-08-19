@@ -63,8 +63,8 @@ class InvoicesService:
         invoice = await self.get(invoice_id)
         return _invoice_with_surcharge(invoice)
 
-    async def list(self):
-        return await self.repo.list()
+    async def list(self, skip: int = 0, limit: int = 100):
+        return await self.repo.list(skip=skip, limit=limit)
 
     async def update(self, invoice_id: int, data: InvoiceUpdate):
         await exists_or_404(self.repo.db, Invoice, invoice_id)
@@ -102,13 +102,19 @@ class PaymentsService:
                 await self.notifier.notify_due_check(check)
         return payment
 
-    async def list_by_invoice(self, invoice_id: int):
-        return await self.repo.list_by_invoice(invoice_id)
+    async def list_by_invoice(self, invoice_id: int, skip: int = 0, limit: int = 100):
+        return await self.repo.list_by_invoice(invoice_id, skip=skip, limit=limit)
 
     async def list(
-        self, client_id: int | None = None, invoice_id: int | None = None
+        self,
+        client_id: int | None = None,
+        invoice_id: int | None = None,
+        skip: int = 0,
+        limit: int = 100,
     ) -> list[Payment]:
-        return await self.repo.list(client_id=client_id, invoice_id=invoice_id)
+        return await self.repo.list(
+            client_id=client_id, invoice_id=invoice_id, skip=skip, limit=limit
+        )
 
     async def total_by_invoice(self, invoice_id: int) -> float:
         return await self.repo.total_by_invoice(invoice_id)

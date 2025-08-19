@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.validators import validate_foreign_keys
 from app.db.repositories.work_order_parts import WorkOrderPartsRepository
-from app.models.work_orders import WorkOrder
 from app.models.invoices import Invoice
+from app.models.work_orders import WorkOrder
 from app.schemas.work_order_parts import WorkOrderPartCreate, WorkOrderPartUpdate
 
 
@@ -18,9 +18,7 @@ class WorkOrderPartsService:
             select(Invoice.id).where(Invoice.work_order_id == work_order_id)
         )
         if result.first():
-            raise HTTPException(
-                status_code=400, detail="La orden ya está facturada"
-            )
+            raise HTTPException(status_code=400, detail="La orden ya está facturada")
 
     async def create_part(self, data: WorkOrderPartCreate):
         await validate_foreign_keys(
@@ -41,7 +39,7 @@ class WorkOrderPartsService:
         if data.work_order_id and data.work_order_id != part.work_order_id:
             await validate_foreign_keys(self.repo.db, {WorkOrder: data.work_order_id})
             await self._ensure_editable(data.work_order_id)
-        updated = await self.repo.update(part_id, data.dict(exclude_unset=True))
+        updated = await self.repo.update(part_id, data.model_dump(exclude_unset=True))
         return updated
 
     async def delete_part(self, part_id: int):

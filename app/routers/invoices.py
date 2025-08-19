@@ -35,11 +35,13 @@ async def create_invoice(
 
 @invoice_router.get("/", response_model=ResponseSchema[list[InvoiceOut]])
 async def list_invoices(
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = InvoicesService(db)
-    data = await service.list()
+    data = await service.list(skip=skip, limit=limit)
     return success_response(data=data)
 
 
@@ -71,11 +73,15 @@ async def register_payment(
 async def search_payments(
     client_id: int | None = None,
     invoice_id: int | None = None,
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    data = await service.list(client_id=client_id, invoice_id=invoice_id)
+    data = await service.list(
+        client_id=client_id, invoice_id=invoice_id, skip=skip, limit=limit
+    )
     return success_response(data=data)
 
 
@@ -110,11 +116,13 @@ async def total_paid(
 )
 async def list_payments(
     invoice_id: int,
+    skip: int = 0,
+    limit: int = 100,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    data = await service.list_by_invoice(invoice_id)
+    data = await service.list_by_invoice(invoice_id, skip=skip, limit=limit)
     return success_response(data=data)
 
 

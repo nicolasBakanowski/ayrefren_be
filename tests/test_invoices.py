@@ -2,6 +2,8 @@ import asyncio
 
 from app.models.clients import Client, ClientType
 from app.models.invoices import Invoice, InvoiceStatus, InvoiceType
+from app.models.trucks import Truck
+from app.models.work_orders import WorkOrder, WorkOrderStatus
 
 
 def test_create_invoice_invalid_order(client):
@@ -83,3 +85,47 @@ def test_invoice_detail_with_surcharge(client):
     data = resp.json()["data"]
     assert data["total_without_surcharge"] == 100
     assert data["total_with_surcharge"] == 121
+
+
+def test_list_invoices_pagination(client):
+    http, session_factory = client
+
+    async def seed_invoices():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="InvLister")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="INV111")
+            session.add(truck)
+            wo_status = WorkOrderStatus(name="open")
+            inv_status = InvoiceStatus(name="pending")
+            inv_type = InvoiceType(name="A", surcharge=0)
+            session.add_all([wo_status, inv_status, inv_type])
+            await session.flush()
+            ids = []
+            for _ in range(3):
+                order = WorkOrder(truck_id=truck.id, status_id=wo_status.id)
+                session.add(order)
+                await session.flush()
+                invoice = Invoice(
+                    work_order_id=order.id,
+                    client_id=cli.id,
+                    invoice_type_id=inv_type.id,
+                    status_id=inv_status.id,
+                    labor_total=0,
+                    parts_total=0,
+                    iva=0,
+                    total=0,
+                )
+                session.add(invoice)
+                await session.flush()
+                ids.append(invoice.id)
+            await session.commit()
+            return ids
+
+    ids = asyncio.run(seed_invoices())
+    resp = http.get("/invoices/", params={"skip": 1, "limit": 1})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["id"] == ids[1]

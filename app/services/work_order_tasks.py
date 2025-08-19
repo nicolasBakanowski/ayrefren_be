@@ -4,10 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.validators import validate_foreign_keys
 from app.db.repositories.work_order_tasks import WorkOrderTasksRepository
+from app.models.invoices import Invoice
 from app.models.users import User
 from app.models.work_orders import WorkOrder
 from app.models.work_orders_mechanic import WorkArea
-from app.models.invoices import Invoice
 from app.schemas.work_order_tasks import (
     WorkOrderTaskBulkPaidUpdate,
     WorkOrderTaskCreate,
@@ -24,9 +24,7 @@ class WorkOrderTasksService:
             select(Invoice.id).where(Invoice.work_order_id == work_order_id)
         )
         if result.first():
-            raise HTTPException(
-                status_code=400, detail="La orden ya está facturada"
-            )
+            raise HTTPException(status_code=400, detail="La orden ya está facturada")
 
     async def create_task(self, data: WorkOrderTaskCreate):
         await validate_foreign_keys(
@@ -58,7 +56,7 @@ class WorkOrderTasksService:
                 WorkArea: data.area_id,
             },
         )
-        updated = await self.repo.update(task_id, data.dict(exclude_unset=True))
+        updated = await self.repo.update(task_id, data.model_dump(exclude_unset=True))
         return updated
 
     async def delete_task(self, task_id: int):

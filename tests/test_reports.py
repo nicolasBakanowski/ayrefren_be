@@ -2,6 +2,7 @@ import asyncio
 from datetime import date, datetime
 
 from app.models.clients import Client, ClientType
+from app.models.expense import Expense, ExpenseType
 from app.models.invoices import (
     Invoice,
     InvoiceStatus,
@@ -11,7 +12,6 @@ from app.models.invoices import (
 )
 from app.models.trucks import Truck
 from app.models.work_orders import WorkOrder, WorkOrderStatus
-from app.models.expense import Expense, ExpenseType
 
 
 def _seed_data(session_factory):

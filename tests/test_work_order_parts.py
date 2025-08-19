@@ -87,9 +87,9 @@ def test_cannot_add_part_when_invoiced(client):
     async def seed_invoice():
         async with session_factory() as session:
             from app.models.clients import Client, ClientType
+            from app.models.invoices import Invoice, InvoiceStatus, InvoiceType
             from app.models.trucks import Truck
             from app.models.work_orders import WorkOrder, WorkOrderStatus
-            from app.models.invoices import Invoice, InvoiceStatus, InvoiceType
 
             cli = Client(type=ClientType.persona, name="InvPart")
             session.add(cli)
