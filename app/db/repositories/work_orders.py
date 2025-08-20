@@ -45,6 +45,7 @@ class WorkOrdersRepository:
                 selectinload(WorkOrder.tasks),
                 selectinload(WorkOrder.parts),
             )
+            .order_by(WorkOrder.id.desc())
             .offset(skip)
             .limit(limit)
         )
