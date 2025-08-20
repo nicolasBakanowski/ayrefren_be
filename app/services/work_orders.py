@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,9 +46,24 @@ class WorkOrdersService:
         return await self._add_editable(work_order)
 
     async def list_work_orders(
-        self, skip: int = 0, limit: int = 100, status_id: int | None = None
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        status_id: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        client_id: int | None = None,
+        truck_id: int | None = None,
     ):
-        orders = await self.repo.list(skip=skip, limit=limit, status_id=status_id)
+        orders = await self.repo.list(
+            skip=skip,
+            limit=limit,
+            status_id=status_id,
+            start_date=start_date,
+            end_date=end_date,
+            client_id=client_id,
+            truck_id=truck_id,
+        )
         return [await self._add_editable(o) for o in orders]
 
     async def update_work_order(self, work_order_id: int, data: WorkOrderUpdate):

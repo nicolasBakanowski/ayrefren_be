@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -39,11 +41,21 @@ async def list_invoices(
     skip: int = 0,
     limit: int = 100,
     status_id: int | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    client_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = InvoicesService(db)
-    data = await service.list(skip=skip, limit=limit, status_id=status_id)
+    data = await service.list(
+        skip=skip,
+        limit=limit,
+        status_id=status_id,
+        start_date=start_date,
+        end_date=end_date,
+        client_id=client_id,
+    )
     return success_response(data=data)
 
 
