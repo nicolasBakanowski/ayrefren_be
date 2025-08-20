@@ -35,17 +35,23 @@ class InvoicesRepository:
         )
         return result.scalar_one_or_none()
 
-    async def list(self, skip: int = 0, limit: int = 100) -> list[Invoice]:
-        result = await self.db.execute(
+    async def list(
+        self, skip: int = 0, limit: int = 100, status_id: int | None = None
+    ) -> list[Invoice]:
+        query = (
             select(Invoice)
             .options(
                 selectinload(Invoice.client),
                 selectinload(Invoice.invoice_type),
                 selectinload(Invoice.status),
             )
+            .order_by(Invoice.id.desc())
             .offset(skip)
             .limit(limit)
         )
+        if status_id is not None:
+            query = query.where(Invoice.status_id == status_id)
+        result = await self.db.execute(query)
         return result.scalars().all()
 
     async def update(self, id: int, data: InvoiceUpdate) -> Invoice:

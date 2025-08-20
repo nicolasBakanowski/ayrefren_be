@@ -63,8 +63,8 @@ class InvoicesService:
         invoice = await self.get(invoice_id)
         return _invoice_with_surcharge(invoice)
 
-    async def list(self, skip: int = 0, limit: int = 100):
-        return await self.repo.list(skip=skip, limit=limit)
+    async def list(self, skip: int = 0, limit: int = 100, status_id: int | None = None):
+        return await self.repo.list(skip=skip, limit=limit, status_id=status_id)
 
     async def update(self, invoice_id: int, data: InvoiceUpdate):
         await exists_or_404(self.repo.db, Invoice, invoice_id)
