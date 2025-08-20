@@ -186,6 +186,6 @@ class PaymentsRepository:
                 query = query.join(Payment.method).where(
                     PaymentMethod.name == payment_type
                 )
-        query = query.offset(skip).limit(limit)
+        query = query.order_by(Payment.date.desc()).offset(skip).limit(limit)
         result = await self.db.execute(query)
         return result.scalars().all()

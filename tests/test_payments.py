@@ -221,6 +221,25 @@ def test_list_payments_pagination(client):
     assert data[0]["amount"] == 20
 
 
+def test_search_payments_returns_latest_first(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_id, "amount": 10},
+    )
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_id, "amount": 20},
+    )
+
+    resp = http.get("/invoices/payments/")
+    assert resp.status_code == 200
+    amounts = [p["amount"] for p in resp.json()["data"]]
+    assert amounts == [20, 10]
+
+
 def test_list_payments_by_invoice_pagination(client):
     http, session_factory = client
     invoice_id, method_id = _seed_invoice(session_factory)
