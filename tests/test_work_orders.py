@@ -240,6 +240,42 @@ def test_list_orders_by_date_range(client):
     assert len(data) == 1 and data[0]["id"] == new_id
 
 
+def test_list_orders_date_inclusive(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="DateIncl")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="DATE2")
+            session.add(truck)
+            status = WorkOrderStatus(name="date")
+            session.add(status)
+            await session.flush()
+            order = WorkOrder(
+                truck_id=truck.id,
+                status_id=status.id,
+                created_at=datetime(2023, 1, 1, 15, 30),
+            )
+            session.add(order)
+            await session.commit()
+            await session.refresh(order)
+            return order.id
+
+    order_id = asyncio.run(seed())
+    resp = http.get(
+        "/orders/",
+        params={
+            "start_date": datetime(2023, 1, 1).isoformat(),
+            "end_date": datetime(2023, 1, 1).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == order_id
+
+
 def test_get_order_success(client):
     http, session_factory = client
 

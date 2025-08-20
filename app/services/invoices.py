@@ -74,6 +74,11 @@ class InvoicesService:
         end_date: datetime | None = None,
         client_id: int | None = None,
     ):
+        if start_date:
+            start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        if end_date:
+            end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
         return await self.repo.list(
             skip=skip,
             limit=limit,
