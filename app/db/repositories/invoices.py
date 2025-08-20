@@ -162,6 +162,9 @@ class PaymentsRepository:
         query = select(Payment).options(
             selectinload(Payment.bank_checks),
             selectinload(Payment.method),
+            selectinload(Payment.invoice).selectinload(Invoice.client),
+            selectinload(Payment.invoice).selectinload(Invoice.invoice_type),
+            selectinload(Payment.invoice).selectinload(Invoice.status),
         )
         if client_id is not None:
             query = query.join(Payment.invoice).where(Invoice.client_id == client_id)

@@ -15,6 +15,7 @@ from app.schemas.invoices import (
     PaymentCreate,
     PaymentMethodOut,
     PaymentOut,
+    PaymentSearchOut,
 )
 from app.schemas.response import ResponseSchema
 from app.services.invoices import BankChecksService, InvoicesService, PaymentsService
@@ -69,7 +70,7 @@ async def register_payment(
     return success_response(data=data)
 
 
-@invoice_router.get("/payments/", response_model=ResponseSchema[list[PaymentOut]])
+@invoice_router.get("/payments/", response_model=ResponseSchema[list[PaymentSearchOut]])
 async def search_payments(
     client_id: int | None = None,
     invoice_id: int | None = None,
@@ -79,9 +80,13 @@ async def search_payments(
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = PaymentsService(db)
-    data = await service.list(
+    payments = await service.list(
         client_id=client_id, invoice_id=invoice_id, skip=skip, limit=limit
     )
+    data = [
+        PaymentSearchOut.model_validate(payment, from_attributes=True).model_dump()
+        for payment in payments
+    ]
     return success_response(data=data)
 
 

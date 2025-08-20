@@ -236,3 +236,41 @@ def test_list_payments_by_invoice_pagination(client):
     data = resp.json()["data"]
     assert len(data) == 1
     assert data[0]["amount"] == 15
+
+
+def test_search_payments_includes_invoice_and_client(client):
+    http, session_factory = client
+    invoice_id, method_id = _seed_invoice(session_factory)
+
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_id, "amount": 50},
+    )
+
+    resp = http.get("/invoices/payments/")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    payment = data[0]
+    assert "invoice" in payment
+    invoice = payment["invoice"]
+    expected_keys = {
+        "id",
+        "work_order_id",
+        "client_id",
+        "invoice_type_id",
+        "status_id",
+        "labor_total",
+        "parts_total",
+        "iva",
+        "total",
+        "invoice_number",
+        "issued_at",
+        "paid",
+        "accepted",
+        "client",
+        "status",
+        "invoice_type",
+    }
+    assert set(invoice.keys()) == expected_keys
+    assert invoice["client"]["name"] == "Payer"

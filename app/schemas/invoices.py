@@ -113,3 +113,21 @@ class PaymentOut(PaymentCreate):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class InvoiceForPaymentOut(InvoiceCreate):
+    id: int
+    issued_at: datetime
+    paid: float
+    accepted: bool
+    client: ClientOut
+    status: InvoiceStatus
+    invoice_type: InvoiceTypeFull
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaymentSearchOut(PaymentOut):
+    invoice: InvoiceForPaymentOut
+
+    model_config = ConfigDict(from_attributes=True)
+
