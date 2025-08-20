@@ -1,6 +1,6 @@
-from fastapi import HTTPException
 from datetime import datetime
 
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.validators import exists_or_404, validate_foreign_keys
@@ -77,7 +77,9 @@ class InvoicesService:
         if start_date:
             start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
         if end_date:
-            end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            end_date = end_date.replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
 
         return await self.repo.list(
             skip=skip,
@@ -132,13 +134,26 @@ class PaymentsService:
         client_id: int | None = None,
         invoice_id: int | None = None,
         payment_type: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         skip: int = 0,
         limit: int = 100,
     ) -> list[Payment]:
+
+        if start_date:
+            start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        if end_date:
+            end_date = end_date.replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
+
         return await self.repo.list(
             client_id=client_id,
             invoice_id=invoice_id,
             payment_type=payment_type,
+            start_date=start_date,
+            end_date=end_date,
             skip=skip,
             limit=limit,
         )

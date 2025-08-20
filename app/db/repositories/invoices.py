@@ -174,6 +174,8 @@ class PaymentsRepository:
         client_id: int | None = None,
         invoice_id: int | None = None,
         payment_type: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         skip: int = 0,
         limit: int = 100,
     ) -> list[Payment]:
@@ -198,6 +200,12 @@ class PaymentsRepository:
                 query = query.join(Payment.method).where(
                     PaymentMethod.name == payment_type
                 )
+        if start_date is not None:
+            query = query.where(Payment.date >= start_date)
+
+        if end_date is not None:
+            query = query.where(Payment.date <= end_date)
+
         query = query.order_by(Payment.date.desc()).offset(skip).limit(limit)
         result = await self.db.execute(query)
         return result.scalars().all()

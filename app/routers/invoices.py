@@ -88,6 +88,8 @@ async def search_payments(
     client_id: int | None = None,
     invoice_id: int | None = None,
     payment_type: str | None = Query(None, alias="type"),
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
     skip: int = 0,
     limit: int = 100,
     db: AsyncSession = Depends(get_db),
@@ -100,6 +102,8 @@ async def search_payments(
         payment_type=payment_type,
         skip=skip,
         limit=limit,
+        start_date=start_date,
+        end_date=end_date,
     )
     data = [
         PaymentSearchOut.model_validate(payment, from_attributes=True).model_dump()

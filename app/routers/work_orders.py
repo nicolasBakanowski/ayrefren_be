@@ -1,7 +1,7 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from datetime import datetime
 
 from app.constants.roles import ADMIN, MECHANIC, REVISOR
 from app.core.database import get_db
