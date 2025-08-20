@@ -109,11 +109,16 @@ class PaymentsService:
         self,
         client_id: int | None = None,
         invoice_id: int | None = None,
+        payment_type: str | None = None,
         skip: int = 0,
         limit: int = 100,
     ) -> list[Payment]:
         return await self.repo.list(
-            client_id=client_id, invoice_id=invoice_id, skip=skip, limit=limit
+            client_id=client_id,
+            invoice_id=invoice_id,
+            payment_type=payment_type,
+            skip=skip,
+            limit=limit,
         )
 
     async def total_by_invoice(self, invoice_id: int) -> float:

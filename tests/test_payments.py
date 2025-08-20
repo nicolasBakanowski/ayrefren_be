@@ -274,3 +274,89 @@ def test_search_payments_includes_invoice_and_client(client):
     }
     assert set(invoice.keys()) == expected_keys
     assert invoice["client"]["name"] == "Payer"
+
+
+def test_list_payments_by_type(client):
+    http, session_factory = client
+    invoice_id, method_cash_id = _seed_invoice(session_factory)
+
+    async def create_card_method():
+        async with session_factory() as session:
+            method = PaymentMethod(name="Card")
+            session.add(method)
+            await session.commit()
+            await session.refresh(method)
+            return method.id
+
+    method_card_id = asyncio.run(create_card_method())
+
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_cash_id, "amount": 10},
+    )
+    http.post(
+        "/invoices/payments/",
+        json={"invoice_id": invoice_id, "method_id": method_card_id, "amount": 20},
+    )
+
+    resp = http.get("/invoices/payments/", params={"type": "Cash"})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["method"]["name"] == "Cash"
+
+
+def test_list_payments_by_check_type(client):
+    http, session_factory = client
+    invoice_id, _ = _seed_invoice(session_factory)
+
+    async def create_cheque_method():
+        async with session_factory() as session:
+            method = PaymentMethod(name="Cheque")
+            session.add(method)
+            await session.commit()
+            await session.refresh(method)
+            return method.id
+
+    cheque_method_id = asyncio.run(create_cheque_method())
+
+    http.post(
+        "/invoices/payments/",
+        json={
+            "invoice_id": invoice_id,
+            "method_id": cheque_method_id,
+            "amount": 100,
+            "bank_checks": [
+                {
+                    "bank_name": "BN",
+                    "check_number": "123",
+                    "amount": 100,
+                    "type": "physical",
+                    "due_date": "2023-01-01T00:00:00",
+                }
+            ],
+        },
+    )
+    http.post(
+        "/invoices/payments/",
+        json={
+            "invoice_id": invoice_id,
+            "method_id": cheque_method_id,
+            "amount": 100,
+            "bank_checks": [
+                {
+                    "bank_name": "BN",
+                    "check_number": "124",
+                    "amount": 100,
+                    "type": "electronic",
+                    "due_date": "2023-01-01T00:00:00",
+                }
+            ],
+        },
+    )
+
+    resp = http.get("/invoices/payments/", params={"type": "physical"})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["bank_checks"][0]["type"] == "physical"
