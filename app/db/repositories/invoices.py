@@ -161,6 +161,7 @@ class PaymentsRepository:
         self,
         client_id: int | None = None,
         invoice_id: int | None = None,
+        payment_type: str | None = None,
         skip: int = 0,
         limit: int = 100,
     ) -> list[Payment]:
@@ -176,6 +177,15 @@ class PaymentsRepository:
             query = query.join(Payment.invoice).where(Invoice.client_id == client_id)
         if invoice_id is not None:
             query = query.where(Payment.invoice_id == invoice_id)
-        query = query.offset(skip).limit(limit)
+        if payment_type is not None:
+            if payment_type.lower() in {"physical", "electronic"}:
+                query = query.join(Payment.bank_checks).where(
+                    BankCheck.type == payment_type
+                )
+            else:
+                query = query.join(Payment.method).where(
+                    PaymentMethod.name == payment_type
+                )
+        query = query.order_by(Payment.date.desc()).offset(skip).limit(limit)
         result = await self.db.execute(query)
         return result.scalars().all()

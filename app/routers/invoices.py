@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.constants.roles import ADMIN, REVISOR
@@ -75,6 +75,7 @@ async def register_payment(
 async def search_payments(
     client_id: int | None = None,
     invoice_id: int | None = None,
+    payment_type: str | None = Query(None, alias="type"),
     skip: int = 0,
     limit: int = 100,
     db: AsyncSession = Depends(get_db),
@@ -82,7 +83,11 @@ async def search_payments(
 ):
     service = PaymentsService(db)
     payments = await service.list(
-        client_id=client_id, invoice_id=invoice_id, skip=skip, limit=limit
+        client_id=client_id,
+        invoice_id=invoice_id,
+        payment_type=payment_type,
+        skip=skip,
+        limit=limit,
     )
     data = [
         PaymentSearchOut.model_validate(payment, from_attributes=True).model_dump()
