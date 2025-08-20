@@ -314,6 +314,24 @@ def test_list_invoices_end_date_inclusive(client):
     assert len(data) == 1 and data[0]["id"] == invoice_id
 
 
+def test_list_invoices_invalid_date_range(client):
+    http, _ = client
+    resp = http.get(
+        "/invoices/",
+        params={
+            "start_date": datetime(2023, 2, 1).isoformat(),
+            "end_date": datetime(2023, 1, 1).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["code"] == 400
+    assert (
+        body["message"]
+        == "La fecha de inicio no puede ser mayor que la fecha final"
+    )
+
+
 def test_list_invoices_date_inclusive(client):
     http, session_factory = client
 
@@ -361,3 +379,21 @@ def test_list_invoices_date_inclusive(client):
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert len(data) == 1 and data[0]["id"] == invoice_id
+
+
+def test_list_invoices_invalid_date_range(client):
+    http, _ = client
+    resp = http.get(
+        "/invoices/",
+        params={
+            "start_date": datetime(2023, 2, 1).isoformat(),
+            "end_date": datetime(2023, 1, 1).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["code"] == 400
+    assert (
+        body["message"]
+        == "La fecha de inicio no puede ser mayor que la fecha final"
+    )

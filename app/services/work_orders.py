@@ -60,6 +60,12 @@ class WorkOrdersService:
         if end_date:
             end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
 
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=400,
+                detail="La fecha de inicio no puede ser mayor que la fecha final",
+            )
+
         orders = await self.repo.list(
             skip=skip,
             limit=limit,
