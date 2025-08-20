@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -33,7 +35,14 @@ class WorkOrdersRepository:
         return result.scalar_one_or_none()
 
     async def list(
-        self, skip: int = 0, limit: int = 100, status_id: int | None = None
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        status_id: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        client_id: int | None = None,
+        truck_id: int | None = None,
     ) -> list[WorkOrder]:
         query = (
             select(WorkOrder)
@@ -51,6 +60,14 @@ class WorkOrdersRepository:
         )
         if status_id is not None:
             query = query.where(WorkOrder.status_id == status_id)
+        if start_date is not None:
+            query = query.where(WorkOrder.created_at >= start_date)
+        if end_date is not None:
+            query = query.where(WorkOrder.created_at <= end_date)
+        if truck_id is not None:
+            query = query.where(WorkOrder.truck_id == truck_id)
+        if client_id is not None:
+            query = query.join(WorkOrder.truck).where(Truck.client_id == client_id)
         result = await self.db.execute(query)
         return result.scalars().all()
 

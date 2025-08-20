@@ -36,7 +36,13 @@ class InvoicesRepository:
         return result.scalar_one_or_none()
 
     async def list(
-        self, skip: int = 0, limit: int = 100, status_id: int | None = None
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        status_id: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        client_id: int | None = None,
     ) -> list[Invoice]:
         query = (
             select(Invoice)
@@ -51,6 +57,12 @@ class InvoicesRepository:
         )
         if status_id is not None:
             query = query.where(Invoice.status_id == status_id)
+        if start_date is not None:
+            query = query.where(Invoice.issued_at >= start_date)
+        if end_date is not None:
+            query = query.where(Invoice.issued_at <= end_date)
+        if client_id is not None:
+            query = query.where(Invoice.client_id == client_id)
         result = await self.db.execute(query)
         return result.scalars().all()
 

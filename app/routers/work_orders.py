@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from datetime import datetime
+
 from app.constants.roles import ADMIN, MECHANIC, REVISOR
 from app.core.database import get_db
 from app.core.dependencies import roles_allowed
@@ -28,11 +30,23 @@ async def list_orders(
     skip: int = 0,
     limit: int = 100,
     status_id: int | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    client_id: int | None = None,
+    truck_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrdersService(db)
-    orders = await service.list_work_orders(skip=skip, limit=limit, status_id=status_id)
+    orders = await service.list_work_orders(
+        skip=skip,
+        limit=limit,
+        status_id=status_id,
+        start_date=start_date,
+        end_date=end_date,
+        client_id=client_id,
+        truck_id=truck_id,
+    )
     return success_response(data=orders)
 
 

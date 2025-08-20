@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from app.models.clients import Client, ClientType
 from app.models.trucks import Truck
@@ -160,6 +161,173 @@ def test_list_orders_by_status(client):
     data = resp.json()["data"]
     assert len(data) == 1
     assert data[0]["status_id"] == status1_id
+
+
+def test_list_orders_by_client_and_truck(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli1 = Client(type=ClientType.persona, name="C1")
+            cli2 = Client(type=ClientType.persona, name="C2")
+            session.add_all([cli1, cli2])
+            await session.flush()
+            truck1 = Truck(client_id=cli1.id, license_plate="AAA123")
+            truck2 = Truck(client_id=cli2.id, license_plate="BBB123")
+            session.add_all([truck1, truck2])
+            status = WorkOrderStatus(name="st")
+            session.add(status)
+            await session.flush()
+            order1 = WorkOrder(truck_id=truck1.id, status_id=status.id)
+            order2 = WorkOrder(truck_id=truck2.id, status_id=status.id)
+            session.add_all([order1, order2])
+            await session.commit()
+            return cli1.id, truck2.id, order1.id, order2.id
+
+    client_id, truck_id, order1_id, order2_id = asyncio.run(seed())
+
+    resp = http.get("/orders/", params={"client_id": client_id})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == order1_id
+
+    resp = http.get("/orders/", params={"truck_id": truck_id})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == order2_id
+
+
+def test_list_orders_by_date_range(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="DateCli")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="DATE1")
+            session.add(truck)
+            status = WorkOrderStatus(name="date")
+            session.add(status)
+            await session.flush()
+            old = WorkOrder(
+                truck_id=truck.id,
+                status_id=status.id,
+                created_at=datetime(2023, 1, 1),
+            )
+            new = WorkOrder(
+                truck_id=truck.id,
+                status_id=status.id,
+                created_at=datetime(2023, 2, 1),
+            )
+            session.add_all([old, new])
+            await session.commit()
+            await session.refresh(old)
+            await session.refresh(new)
+            return old.id, new.id
+
+    old_id, new_id = asyncio.run(seed())
+
+    resp = http.get(
+        "/orders/",
+        params={
+            "start_date": datetime(2023, 1, 15).isoformat(),
+            "end_date": datetime(2023, 2, 15).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == new_id
+
+
+def test_list_orders_date_inclusive(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="DateIncl")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="DATE2")
+            session.add(truck)
+            status = WorkOrderStatus(name="date")
+            session.add(status)
+            await session.flush()
+            order = WorkOrder(
+                truck_id=truck.id,
+                status_id=status.id,
+                created_at=datetime(2023, 1, 1, 15, 30),
+            )
+            session.add(order)
+            await session.commit()
+            await session.refresh(order)
+            return order.id
+
+    order_id = asyncio.run(seed())
+    resp = http.get(
+        "/orders/",
+        params={
+            "start_date": datetime(2023, 1, 1).isoformat(),
+            "end_date": datetime(2023, 1, 1).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == order_id
+
+
+def test_list_orders_end_date_inclusive(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="EndIncl")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="END1")
+            session.add(truck)
+            status = WorkOrderStatus(name="date")
+            session.add(status)
+            await session.flush()
+            order = WorkOrder(
+                truck_id=truck.id,
+                status_id=status.id,
+                created_at=datetime(2023, 8, 21, 10, 0),
+            )
+            session.add(order)
+            await session.commit()
+            await session.refresh(order)
+            return order.id
+
+    order_id = asyncio.run(seed())
+    resp = http.get(
+        "/orders/",
+        params={
+            "start_date": datetime(2023, 8, 18).isoformat(),
+            "end_date": datetime(2023, 8, 21).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == order_id
+
+
+def test_list_orders_invalid_date_range(client):
+    http, _ = client
+    resp = http.get(
+        "/orders/",
+        params={
+            "start_date": datetime(2023, 2, 1).isoformat(),
+            "end_date": datetime(2023, 1, 1).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["code"] == 400
+    assert (
+        body["message"]
+        == "La fecha de inicio no puede ser mayor que la fecha final"
+    )
 
 
 def test_get_order_success(client):

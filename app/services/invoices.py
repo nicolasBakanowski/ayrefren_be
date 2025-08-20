@@ -1,4 +1,6 @@
 from fastapi import HTTPException
+from datetime import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.validators import exists_or_404, validate_foreign_keys
@@ -63,8 +65,34 @@ class InvoicesService:
         invoice = await self.get(invoice_id)
         return _invoice_with_surcharge(invoice)
 
-    async def list(self, skip: int = 0, limit: int = 100, status_id: int | None = None):
-        return await self.repo.list(skip=skip, limit=limit, status_id=status_id)
+    async def list(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        status_id: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        client_id: int | None = None,
+    ):
+        if start_date:
+            start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        if end_date:
+            end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=400,
+                detail="La fecha de inicio no puede ser mayor que la fecha final",
+            )
+
+        return await self.repo.list(
+            skip=skip,
+            limit=limit,
+            status_id=status_id,
+            start_date=start_date,
+            end_date=end_date,
+            client_id=client_id,
+        )
 
     async def update(self, invoice_id: int, data: InvoiceUpdate):
         await exists_or_404(self.repo.db, Invoice, invoice_id)

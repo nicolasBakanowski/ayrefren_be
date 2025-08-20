@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,9 +46,35 @@ class WorkOrdersService:
         return await self._add_editable(work_order)
 
     async def list_work_orders(
-        self, skip: int = 0, limit: int = 100, status_id: int | None = None
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        status_id: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        client_id: int | None = None,
+        truck_id: int | None = None,
     ):
-        orders = await self.repo.list(skip=skip, limit=limit, status_id=status_id)
+        if start_date:
+            start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        if end_date:
+            end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=400,
+                detail="La fecha de inicio no puede ser mayor que la fecha final",
+            )
+
+        orders = await self.repo.list(
+            skip=skip,
+            limit=limit,
+            status_id=status_id,
+            start_date=start_date,
+            end_date=end_date,
+            client_id=client_id,
+            truck_id=truck_id,
+        )
         return [await self._add_editable(o) for o in orders]
 
     async def update_work_order(self, work_order_id: int, data: WorkOrderUpdate):
