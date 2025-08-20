@@ -141,7 +141,10 @@ def test_billing_by_client_date_range(client):
 
     resp = http.get(
         "/reports/billing-by-client",
-        params={"start_date": "2024-01-01", "end_date": "2024-01-31"},
+        params={
+            "start_date": datetime(year=2024, month=1, day=1),
+            "end_date": datetime(year=2024, month=1, day=31),
+        },
     )
     assert resp.status_code == 200
     data = resp.json()["data"]
@@ -157,8 +160,8 @@ def test_payments_by_method_filters(client):
     resp = http.get(
         "/reports/payments-by-method",
         params={
-            "start_date": "2024-01-01",
-            "end_date": "2024-01-31",
+            "start_date": datetime(year=2024, month=1, day=1),
+            "end_date": datetime(year=2024, month=1, day=31),
             "client_id": client1_id,
         },
     )

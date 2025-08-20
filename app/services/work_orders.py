@@ -58,7 +58,9 @@ class WorkOrdersService:
         if start_date:
             start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
         if end_date:
-            end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            end_date = end_date.replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
 
         if start_date and end_date and start_date > end_date:
             raise HTTPException(

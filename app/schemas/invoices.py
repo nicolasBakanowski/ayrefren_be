@@ -130,4 +130,3 @@ class PaymentSearchOut(PaymentOut):
     invoice: InvoiceForPaymentOut
 
     model_config = ConfigDict(from_attributes=True)
-
