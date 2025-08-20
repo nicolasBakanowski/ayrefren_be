@@ -265,6 +265,55 @@ def test_list_invoices_by_client_and_date(client):
     assert len(data) == 1 and data[0]["id"] == inv2_id
 
 
+def test_list_invoices_end_date_inclusive(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="EndInv")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="INVE1")
+            session.add(truck)
+            wo_status = WorkOrderStatus(name="open")
+            inv_status = InvoiceStatus(name="pending")
+            inv_type = InvoiceType(name="A", surcharge=0)
+            session.add_all([wo_status, inv_status, inv_type])
+            await session.flush()
+
+            order = WorkOrder(truck_id=truck.id, status_id=wo_status.id)
+            session.add(order)
+            await session.flush()
+
+            inv = Invoice(
+                work_order_id=order.id,
+                client_id=cli.id,
+                invoice_type_id=inv_type.id,
+                status_id=inv_status.id,
+                labor_total=0,
+                parts_total=0,
+                iva=0,
+                total=0,
+                issued_at=datetime(2023, 8, 21, 20, 0),
+            )
+            session.add(inv)
+            await session.commit()
+            await session.refresh(inv)
+            return inv.id
+
+    invoice_id = asyncio.run(seed())
+    resp = http.get(
+        "/invoices/",
+        params={
+            "start_date": datetime(2023, 8, 18).isoformat(),
+            "end_date": datetime(2023, 8, 21).isoformat(),
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1 and data[0]["id"] == invoice_id
+
+
 def test_list_invoices_date_inclusive(client):
     http, session_factory = client
 
