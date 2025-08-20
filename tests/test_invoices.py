@@ -124,8 +124,71 @@ def test_list_invoices_pagination(client):
             return ids
 
     ids = asyncio.run(seed_invoices())
+    resp = http.get("/invoices/")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert [inv["id"] for inv in data[:3]] == ids[::-1]
+
     resp = http.get("/invoices/", params={"skip": 1, "limit": 1})
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert len(data) == 1
-    assert data[0]["id"] == ids[1]
+    assert data[0]["id"] == ids[-2]
+
+
+def test_list_invoices_by_status(client):
+    http, session_factory = client
+
+    async def seed():
+        async with session_factory() as session:
+            cli = Client(type=ClientType.persona, name="InvFilter")
+            session.add(cli)
+            await session.flush()
+            truck = Truck(client_id=cli.id, license_plate="FIL111")
+            session.add(truck)
+            wo_status = WorkOrderStatus(name="open")
+            inv_status1 = InvoiceStatus(name="pending")
+            inv_status2 = InvoiceStatus(name="paid")
+            inv_type = InvoiceType(name="A", surcharge=0)
+            session.add_all([wo_status, inv_status1, inv_status2, inv_type])
+            await session.flush()
+
+            order1 = WorkOrder(truck_id=truck.id, status_id=wo_status.id)
+            session.add(order1)
+            await session.flush()
+            session.add(
+                Invoice(
+                    work_order_id=order1.id,
+                    client_id=cli.id,
+                    invoice_type_id=inv_type.id,
+                    status_id=inv_status1.id,
+                    labor_total=0,
+                    parts_total=0,
+                    iva=0,
+                    total=0,
+                )
+            )
+
+            order2 = WorkOrder(truck_id=truck.id, status_id=wo_status.id)
+            session.add(order2)
+            await session.flush()
+            inv2 = Invoice(
+                work_order_id=order2.id,
+                client_id=cli.id,
+                invoice_type_id=inv_type.id,
+                status_id=inv_status2.id,
+                labor_total=0,
+                parts_total=0,
+                iva=0,
+                total=0,
+            )
+            session.add(inv2)
+            await session.commit()
+            return inv_status2.id, inv2.id
+
+    status_id, invoice_id = asyncio.run(seed())
+    resp = http.get("/invoices/", params={"status_id": status_id})
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert len(data) == 1
+    assert data[0]["id"] == invoice_id

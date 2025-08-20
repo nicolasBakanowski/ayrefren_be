@@ -38,11 +38,12 @@ async def create_invoice(
 async def list_invoices(
     skip: int = 0,
     limit: int = 100,
+    status_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR)),
 ):
     service = InvoicesService(db)
-    data = await service.list(skip=skip, limit=limit)
+    data = await service.list(skip=skip, limit=limit, status_id=status_id)
     return success_response(data=data)
 
 
