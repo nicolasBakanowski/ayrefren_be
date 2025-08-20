@@ -27,11 +27,12 @@ async def create_order(
 async def list_orders(
     skip: int = 0,
     limit: int = 100,
+    status_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: str = Depends(roles_allowed(ADMIN, REVISOR, MECHANIC)),
 ):
     service = WorkOrdersService(db)
-    orders = await service.list_work_orders(skip=skip, limit=limit)
+    orders = await service.list_work_orders(skip=skip, limit=limit, status_id=status_id)
     return success_response(data=orders)
 
 

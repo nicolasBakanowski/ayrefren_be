@@ -32,8 +32,10 @@ class WorkOrdersRepository:
         )
         return result.scalar_one_or_none()
 
-    async def list(self, skip: int = 0, limit: int = 100) -> list[WorkOrder]:
-        result = await self.db.execute(
+    async def list(
+        self, skip: int = 0, limit: int = 100, status_id: int | None = None
+    ) -> list[WorkOrder]:
+        query = (
             select(WorkOrder)
             .options(
                 selectinload(WorkOrder.status),
@@ -46,6 +48,9 @@ class WorkOrdersRepository:
             .offset(skip)
             .limit(limit)
         )
+        if status_id is not None:
+            query = query.where(WorkOrder.status_id == status_id)
+        result = await self.db.execute(query)
         return result.scalars().all()
 
     async def update(self, work_order_id: int, data: dict) -> WorkOrder | bool:
