@@ -1,8 +1,10 @@
+import sentry_sdk
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.constants.response_codes import ResponseCode
+from app.core.settings import settings
 from app.routers import (
     auth_router,
     clients_router,
@@ -22,6 +24,14 @@ from app.schemas.response import ResponseSchema
 
 # Configuración de la app
 def get_application() -> FastAPI:
+
+    # Configuración de Sentry para monitoreo de errores
+    if settings.PRODUCTION:
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            send_default_pii=True,
+        )
+
     app = FastAPI(
         title="Sistema de Gestión para Taller Mecánico",
         description="API para gestionar órdenes de trabajo, clientes, facturación, pagos y más.",
